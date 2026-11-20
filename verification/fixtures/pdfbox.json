@@ -1,0 +1,27 @@
+{
+  "generator": "Apache PDFBox 3.0.4",
+  "jarSha256": {
+    "commons-logging-1.3.4.jar": "bc2dfe32f1ef06509e6a065144c1adf7b420eabf11a87f30bd127f8faa332016",
+    "fontbox-3.0.4.jar": "2deec6232f5d6d3b31276592d31680ae9722af57d24cb0f76da70e2ba0e99e12",
+    "pdfbox-3.0.4.jar": "09a0ff27d6f84a1dc40060cb0a01decf2ad4ef91c36bc91b9836c254be8aae45",
+    "pdfbox-io-3.0.4.jar": "7a9d4746f2e13a1e22f4efe47fbaf999763caea41748535af93a01eedc50f554"
+  },
+  "realExports": [
+    "pdfbox-classic.pdf",
+    "pdfbox-compressed.pdf"
+  ],
+  "controlledVariants": [
+    "pdfbox-wrong-unicode.pdf",
+    "pdfbox-incremental-control.pdf",
+    "pdfbox-hybrid-control.pdf",
+    "pdfbox-size-control.pdf"
+  ],
+  "fixtureSha256": {
+    "pdfbox-classic.pdf": "659f4cbf79c5c4f6700b64fa3f14e256f530f8961aeaea09ff27da6a1f18d392",
+    "pdfbox-compressed.pdf": "a4b641da7b3b0a38590c2a1b788f90d6a254ed3a911b3527791dc0e2e4ea56a0",
+    "pdfbox-wrong-unicode.pdf": "aa7c248ff54d2faa6b97a9eee9210277f1958dc39b18e7c77e81ad90e83acc36",
+    "pdfbox-incremental-control.pdf": "a5884558f7c7e9a323d66c2c2b3a3ad1ee6b367e06a1779935e06266c2c2f29f",
+    "pdfbox-hybrid-control.pdf": "243b65bb6911ff18b30df817d930512bf15667429d8a63ecfc457984f008afc6",
+    "pdfbox-size-control.pdf": "6b601687e7696c3a2975eb73883e38ccb31bdf667b366af9fd88fcd9c8ec2ba5"
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.6",
-  "artifactSha256": "03af64d9116974830b8af17ad4a21b8549800fcb38f52b6cda361da3e99a2297",
+  "toolVersion": "0.0.7",
+  "artifactSha256": "8b6712a022fae1372b4169a590705411eecfb150ecc45ab8fc222f0e66e14a22",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",
@@ -323,6 +323,39 @@
       "text_utf8_sha256": "b6f0663905f9d8f710cf3ba2d6127cab47a51082f75543c80d28ad075c27154a",
       "text_prefix": "ūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽž",
       "same_extraction_order_as_baseline": false
+    }
+  },
+  "pdfbox": {
+    "generator": "Apache PDFBox 3.0.4",
+    "cases": {
+      "pdfbox-classic.pdf": {
+        "rgb_sha256": "4ac82fa3ac3e0335bca37281e7732e9f09b1014db3796f8ffbea56d7f75bbf92",
+        "text_utf8_sha256": "38149e54661cf8116d0addd32d5fddba9ade2d9d2853e7eebc0ca49621d0aff5",
+        "text_prefix": "! PDFTextGuard compa",
+        "text": "! PDFTextGuard compares exported text.",
+        "indexed_compressed_objects": 0
+      },
+      "pdfbox-compressed.pdf": {
+        "rgb_sha256": "4ac82fa3ac3e0335bca37281e7732e9f09b1014db3796f8ffbea56d7f75bbf92",
+        "text_utf8_sha256": "38149e54661cf8116d0addd32d5fddba9ade2d9d2853e7eebc0ca49621d0aff5",
+        "text_prefix": "! PDFTextGuard compa",
+        "text": "! PDFTextGuard compares exported text.",
+        "indexed_compressed_objects": 9
+      },
+      "pdfbox-wrong-unicode.pdf": {
+        "rgb_sha256": "4ac82fa3ac3e0335bca37281e7732e9f09b1014db3796f8ffbea56d7f75bbf92",
+        "text_utf8_sha256": "dd4818f3b7a65e0b0be3a322c695141634b1411859f97bfb0b12dd74b1959eeb",
+        "text_prefix": "Z PDFTextGuard compa",
+        "text": "Z PDFTextGuard compares exported text.",
+        "indexed_compressed_objects": 9
+      }
+    },
+    "verified_changed_rule": {
+      "operator": "bfrange",
+      "decoded_offset": 258,
+      "decoded_end": 287,
+      "value_offset": 280,
+      "range_index": 1
     }
   }
 }

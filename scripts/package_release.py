@@ -46,7 +46,8 @@ def main():
                     "verification/fixtures/*.pdf", "verification/fixtures/generator.json",
                     "verification/fixtures/source-300.txt", "verification/history/*.json",
                     "verification/benchmark-results.json", "PERFORMANCE.md",
-                    "examples/*.yml"):
+                    "examples/*.yml", "verification/pdfbox/*.java", "verification/pdfbox/*.py",
+                    "verification/pdfbox/*.md", "verification/fixtures/pdfbox.json"):
         members.update(path.relative_to(ROOT).as_posix() for path in ROOT.glob(pattern))
     archive = ROOT / "dist" / (prefix + ".zip")
     with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=9) as zip_file:

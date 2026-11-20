@@ -184,6 +184,37 @@ def verify_order_rendering(baseline, baseline_text):
     return result
 
 
+def verify_pdfbox():
+    meta = json.loads((FIXTURES / "pdfbox.json").read_text(encoding="utf-8"))
+    for name, expected in meta["fixtureSha256"].items():
+        assert digest((FIXTURES / name).read_bytes()) == expected
+    expected_text = "! PDFTextGuard compares exported text."
+    result = {}
+    for mode in ("classic", "compressed", "wrong-unicode"):
+        name = f"pdfbox-{mode}.pdf"
+        path = FIXTURES / name
+        reader = PdfReader(path)
+        assert bool(reader.xref_objStm) == (mode != "classic")
+        facts, text = pdfium_observation(path)
+        expected = expected_text if mode != "wrong-unicode" else "Z" + expected_text[1:]
+        assert text.strip() == reader.pages[0].extract_text().strip() == expected
+        result[name] = {**facts, "text": expected, "indexed_compressed_objects": len(reader.xref_objStm)}
+    assert len({item["rgb_sha256"] for item in result.values()}) == 1
+    cases = json.loads((HERE / "cli-results.json").read_text(encoding="utf-8"))["cases"]
+    bad = next(item for item in cases if item["name"] == "PDFBox compressed save with controlled wrong mapping")
+    witness = bad["diagnostic"]["candidate"]
+    page = PdfReader(FIXTURES / "pdfbox-wrong-unicode.pdf").pages[witness["page"] - 1]
+    font_ref = page["/Resources"]["/Font"].raw_get(witness["font_resource"])
+    cmap_ref = font_ref.get_object().raw_get("/ToUnicode")
+    assert (font_ref.idnum, font_ref.generation) == (witness["font_object"]["number"], witness["font_object"]["generation"])
+    assert (cmap_ref.idnum, cmap_ref.generation) == (witness["cmap_object"]["number"], witness["cmap_object"]["generation"])
+    data = cmap_ref.get_object().get_data()
+    rule = witness["rule"]
+    assert data[rule["decoded_offset"]:rule["decoded_end"]] == b"<0003> <0004> [<0020> <005A>]"
+    assert data[rule["value_offset"]:rule["value_offset"] + 6] == b"<005A>"
+    return {"generator": meta["generator"], "cases": result, "verified_changed_rule": rule}
+
+
 def main():
     meta = json.loads((FIXTURES / "generator.json").read_text(encoding="utf-8"))
     facts, cmaps, texts = {}, {}, {}
@@ -232,9 +263,10 @@ def main():
         "form_cases": form_results,
         "page_cases": page_results,
         "order_cases": order_results,
+        "pdfbox": verify_pdfbox(),
     }
     (HERE / "reference-results.json").write_text(
-        json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
+        json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n",
     )
     print("PASS: independent object/span, subset, rendered pixels, and text-extraction checks.")
 

@@ -58,6 +58,20 @@ function reason(code, message) {
 }
 
 check('same ready export', fixed, fixed, 0, clean(300));
+const classic = input('pdfbox-classic');
+check('real PDFBox compressed save', classic, input('pdfbox-compressed'), 0, clean(38));
+check('PDFBox compressed save with controlled wrong mapping', classic, input('pdfbox-wrong-unicode'), 1, report => {
+  assert.equal(report.mismatched_occurrences, 1);
+  const [issue] = report.diagnostics;
+  assert.equal(issue.candidate.page, 1);
+  assert.deepEqual(issue.baseline.unicode, ['U+0021']);
+  assert.deepEqual(issue.candidate.unicode, ['U+005A']);
+  assert.ok(issue.candidate.cmap_object.number > 0);
+});
+for (const mode of ['incremental', 'hybrid', 'size']) {
+  check('PDFBox structure control ' + mode, classic, input('pdfbox-' + mode + '-control'), 2,
+    reason('unsupported', mode === 'size' ? /count limit/ : /incremental PDF or hybrid/));
+}
 check('real PDFKit #1659', fixed, input('pdfkit-0.17.2-300'), 1, report => {
   assert.equal(report.aligned_glyphs, 300);
   assert.equal(report.compared_glyphs, 0);

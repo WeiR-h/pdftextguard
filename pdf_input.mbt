@@ -18,39 +18,17 @@ fn read_document(data : Bytes) -> Document raise GuardError {
   if data.length() > max_file_bytes {
     raise Unsupported("PDF exceeds the 32 MiB input limit")
   }
-  // Check classic xref and trailer before the generic reader could expand
-  // object streams or open an empty-password encrypted file.
   let xref = @pdfreader.pdf_read_startxref_position(data) catch {
     _ => raise Invalid("missing or invalid startxref")
   }
+  if xref < 0 || xref >= data.length() {
+    raise Invalid("startxref outside the PDF")
+  }
   let marker = data.get_view(start=xref, end=xref + 4)
-  if marker is Some(bytes) && bytes == b"xref" {
-    ()
+  let (pdf, decoded_bytes) = if marker is Some(bytes) && bytes == b"xref" {
+    (read_classic_document(data, xref), 0)
   } else {
-    raise Unsupported("PDF cross-reference streams")
-  }
-  let cursor = @pdfcore.byte_cursor_of_view(data[xref:])
-  let (entries, trailer) = try {
-    let entries = @pdfreader.pdf_cursor_read_classic_xref_entries(cursor)
-    (entries, @pdfreader.pdf_cursor_read_trailer_dictionary(cursor))
-  } catch {
-    _ =>
-      raise Invalid("cannot read the classic cross-reference table or trailer")
-  }
-  if entries.length() > 50_000 {
-    raise Unsupported("PDF exceeds the object count limit")
-  }
-  if field(trailer, b"Prev") is Some(_) || field(trailer, b"XRefStm") is Some(_) {
-    raise Unsupported("incremental PDF or hybrid cross-reference data")
-  }
-  if field(trailer, b"Encrypt") is Some(_) {
-    raise Unsupported("encrypted PDF")
-  }
-  let pdf = @pdf.pdf_read_classic_document_from_bytes(data) catch {
-    _ =>
-      raise Invalid(
-        "cannot read PDF objects or cross-reference data with pdflite",
-      )
+    read_stream_document(data, xref)
   }
   if pdf.is_encrypted() {
     raise Unsupported("encrypted PDF")
@@ -65,12 +43,47 @@ fn read_document(data : Bytes) -> Document raise GuardError {
   {
     pdf,
     generations,
-    decoded_bytes: 0,
+    decoded_bytes,
     outline_budget: Ref(16 * 1024 * 1024),
     fonts: Map([]),
     decoded_streams: Map([]),
     content_bytes: 0,
     form_calls: 0,
+  }
+}
+
+///|
+fn check_trailer(trailer : @syntax.PdfObject) -> Unit raise GuardError {
+  if field(trailer, b"Prev") is Some(_) || field(trailer, b"XRefStm") is Some(_) {
+    raise Unsupported("incremental PDF or hybrid cross-reference data")
+  }
+  if field(trailer, b"Encrypt") is Some(_) {
+    raise Unsupported("encrypted PDF")
+  }
+}
+
+///|
+fn read_classic_document(
+  data : Bytes,
+  xref : Int32,
+) -> @pdf.PdfDocument raise GuardError {
+  let cursor = @pdfcore.byte_cursor_of_view(data[xref:])
+  let (entries, trailer) = try {
+    let entries = @pdfreader.pdf_cursor_read_classic_xref_entries(cursor)
+    (entries, @pdfreader.pdf_cursor_read_trailer_dictionary(cursor))
+  } catch {
+    _ =>
+      raise Invalid("cannot read the classic cross-reference table or trailer")
+  }
+  if entries.length() > 50_000 {
+    raise Unsupported("PDF exceeds the object count limit")
+  }
+  check_trailer(trailer)
+  @pdf.pdf_read_classic_document_from_bytes(data) catch {
+    _ =>
+      raise Invalid(
+        "cannot read PDF objects or cross-reference data with pdflite",
+      )
   }
 }
 

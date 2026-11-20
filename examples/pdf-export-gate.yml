@@ -7,7 +7,7 @@ jobs:
   compare:
     runs-on: ubuntu-latest
     env:
-      PDFTEXTGUARD_TAG: v0.0.6
+      PDFTEXTGUARD_TAG: v0.0.7
     steps:
       - uses: actions/checkout@v4
         with:
