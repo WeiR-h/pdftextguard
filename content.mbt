@@ -15,6 +15,7 @@ priv struct GlyphUse {
   glyph : ResolvedGlyph
   cid : Int32
   pose : Matrix
+  source_origin : (Double, Double)?
   advance : Double
   trace : TextTrace
   byte_index : Int32
@@ -61,8 +62,10 @@ fn GlyphUse::site(self : GlyphUse) -> UseSite {
     code: display_hex(self.cid, 4),
     cid: self.cid,
     gid: self.glyph.gid,
-    origin_x: self.pose.x,
-    origin_y: self.pose.y,
+    origin_x: self.source_origin.map(p => p.0).unwrap_or(self.pose.x),
+    origin_y: self.source_origin.map(p => p.1).unwrap_or(self.pose.y),
+    display_origin_x: self.source_origin.map(_ => self.pose.x),
+    display_origin_y: self.source_origin.map(_ => self.pose.y),
     unicode: self.glyph.mapping.map(m => unicode_labels(m.scalars)),
     rule: self.glyph.mapping.map(m => m.rule),
     form_path: trace.form_path,
@@ -74,6 +77,7 @@ priv struct PageScan {
   glyphs : Array[GlyphUse]
   diagnostics : Array[Diagnostic]
   bounds : Array[Double]
+  page_unit : Double
   mut blocked : Bool
   mut syntax_error : Bool
 }
@@ -96,6 +100,7 @@ priv struct ContentScan {
   mut stream_index : Int32
   mut decoded_offset : Int32?
   glyph_budget : Int32
+  page_transform : Matrix?
   form_path : Array[FormCall]
   nested_error : Ref[StreamSite?]
 }
@@ -279,14 +284,27 @@ fn ContentScan::show_string(
   for i = 0; i < data.length(); i = i + 2 {
     let cid = (data[i].to_int() << 8) | data[i + 1].to_int()
     let glyph = font.data.resolve_glyph(cid)
-    let pose = gs.ctm.multiply(self.text).multiply(font_matrix)
+    let source_pose = gs.ctm.multiply(self.text).multiply(font_matrix)
+    let (pose, source_origin) = match self.page_transform {
+      Some(transform) =>
+        (transform.multiply(source_pose), Some((source_pose.x, source_pose.y)))
+      None => (source_pose, None)
+    }
     guard_matrix(pose)
     if (pose.a * pose.d - pose.b * pose.c).abs() < 0.000000001 {
       raise Unsupported("degenerate text transform")
     }
     // Tw applies to a single-byte 0x20 code, never to Identity-H two-byte codes.
     let advance = (glyph.width * gs.size / 1000.0 + gs.spacing) * gs.scale
-    let occurrence = { glyph, cid, pose, advance, trace, byte_index: i, }
+    let occurrence = {
+      glyph,
+      cid,
+      pose,
+      source_origin,
+      advance,
+      trace,
+      byte_index: i,
+    }
     if !trace.cmap_valid && !font.cmap_reported {
       append_cmap_diagnostics(self.output, self.side, font, occurrence)
     }

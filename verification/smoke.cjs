@@ -103,7 +103,7 @@ check('PDF literal string and equivalent Tj', fixed, input('literal-tj'), 0, cle
 check('real CIDToGIDMap stream preserves glyph identity', fixed, input('explicit-cid-to-gid'), 0, clean(300));
 check('ActualText shadows font mapping', fixed, input('marked-actualtext'), 2, reason('unsupported', /ActualText/));
 check('encrypted input', fixed, input('encrypted'), 2, reason('unsupported', /encrypted/));
-check('page rotation is outside v0.0.1 scope', fixed, input('rotated'), 2, reason('unsupported', /rotation/));
+check('changed display rotation is inconclusive', fixed, input('rotated'), 2, reason('unaligned_page'));
 check('CMap inheritance does not masquerade as regression', fixed, input('inherited-cmap'), 2, reason('cmap_unsupported'));
 check('ToUnicode loss is visible for used characters', fixed, input('missing-tounicode'), 1, report => {
   assert.equal(report.mismatched_occurrences, 300);
@@ -129,6 +129,23 @@ check('nested form cross-subset drift', input('nested-form'), input('nested-form
   assert.equal(issue.candidate.content_object.number, issue.candidate.form_path[1].form_object.number);
   assert.deepEqual(issue.candidate.unicode, ['U+005A']);
 });
+for (const angle of [90, 180, 270]) {
+  check('rotate ' + angle + ' and cropped page normalized', input('crop-rotate-' + angle),
+    input('crop-flatten-' + angle), 0, clean(300));
+}
+check('rotation normalized Unicode regression', input('crop-rotate-90'), input('crop-flatten-90-wrong'), 1, report => {
+  assert.equal(report.mismatched_occurrences, 1);
+  const [issue] = report.diagnostics;
+  assert.equal(issue.code, 'mapping_changed');
+  assert.deepEqual(issue.candidate.unicode, ['U+005A']);
+  assert.ok(Math.abs(issue.baseline.origin_x - issue.candidate.origin_x) > 100);
+  assert.ok(Math.abs(issue.baseline.display_origin_x - issue.candidate.display_origin_x) < 0.01);
+  assert.ok(Math.abs(issue.baseline.display_origin_y - issue.candidate.display_origin_y) < 0.01);
+});
+check('invalid rotation is rejected', fixed, input('invalid-rotate'), 2, reason('invalid_input', /multiple of 90/));
+check('equal non-default UserUnit is supported', input('unit-scaled'), input('unit-scaled'), 0, clean(300));
+check('changed UserUnit remains inconclusive across readers', fixed, input('unit-scaled'), 2, reason('unaligned_page', /UserUnit/));
+check('zero UserUnit is rejected', fixed, input('invalid-unit'), 2, reason('invalid_input', /positive/));
 
 const human = run('check', fixed, input('wrong-unicode'));
 assert.equal(human.status, 1);

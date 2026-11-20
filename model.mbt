@@ -1,5 +1,5 @@
 ///|
-pub let version : String = "0.0.3"
+pub let version : String = "0.0.4"
 
 ///|
 #derive(@json.ToJson)
@@ -43,6 +43,8 @@ pub struct UseSite {
   gid : Int32
   origin_x : Double
   origin_y : Double
+  display_origin_x : Double?
+  display_origin_y : Double?
   unicode : Array[String]?
   rule : CMapSpan?
   form_path : Array[FormCall]?

@@ -125,11 +125,9 @@ fn ContentScan::draw_form(
     marked_depth: 0,
     form_path: [..self.form_path, call],
   }
-  errdefer {
-    if self.nested_error.val is None {
-      self.nested_error.val = Some(child.stream_site())
-    }
-  }
+  errdefer (if self.nested_error.val is None {
+    self.nested_error.val = Some(child.stream_site())
+  })
   child.read_stream(raw, self.stream_index)
   child.require_closed()
 }

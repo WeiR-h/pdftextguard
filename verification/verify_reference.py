@@ -148,6 +148,27 @@ def verify_form_rendering(baseline, baseline_text):
     return results
 
 
+def verify_page_rendering(baseline):
+    cases = {}
+    for angle in [90, 180, 270]:
+        old = f"crop-rotate-{angle}.pdf"
+        new = f"crop-flatten-{angle}.pdf"
+        cases[old], old_text = pdfium_observation(FIXTURES / old)
+        cases[new], new_text = pdfium_observation(FIXTURES / new)
+        assert cases[old]["rgb_sha256"] == cases[new]["rgb_sha256"]
+        assert old_text == new_text
+        if angle == 90:
+            bad = "crop-flatten-90-wrong.pdf"
+            cases[bad], bad_text = pdfium_observation(FIXTURES / bad)
+            assert cases[bad]["rgb_sha256"] == cases[old]["rgb_sha256"]
+            assert old_text.count("!") == 1 and bad_text == old_text.replace("!", "Z", 1)
+    # PDFium does not apply UserUnit to its bitmap size for this fixture.
+    # A cross-unit equivalence claim would therefore be reader-dependent.
+    cases["unit-scaled.pdf"], _ = pdfium_observation(FIXTURES / "unit-scaled.pdf")
+    assert cases["unit-scaled.pdf"]["rgb_sha256"] != baseline["rgb_sha256"]
+    return cases
+
+
 def main():
     meta = json.loads((FIXTURES / "generator.json").read_text(encoding="utf-8"))
     facts, cmaps, texts = {}, {}, {}
@@ -182,6 +203,7 @@ def main():
 
     artifact_proof = verify_report_offsets(facts, cmaps)
     form_results = verify_form_rendering(facts[baseline], texts[baseline])
+    page_results = verify_page_rendering(facts[baseline])
     result = {
         **artifact_proof,
         "all_assertions_passed": True,
@@ -192,6 +214,7 @@ def main():
         "notes": "Only the original 0.17.2/0.18.0 exports reproduce the upstream release bug. Reordered subsets and the altered Unicode table are controlled PDFKit exports.",
         "cases": facts,
         "form_cases": form_results,
+        "page_cases": page_results,
     }
     (HERE / "reference-results.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",

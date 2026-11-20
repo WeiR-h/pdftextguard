@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pypdf import PdfWriter
 from pypdf.generic import (
-    ArrayObject, DecodedStreamObject, DictionaryObject, NameObject, NumberObject,
+    ArrayObject, DecodedStreamObject, DictionaryObject, NameObject, NumberObject, RectangleObject,
 )
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -81,12 +81,43 @@ def forms():
     variant(FIXED, "recursive-form", recursing_form)
 
 
+def turn_page(writer, page, angle, *, flatten=False, inherit=False):
+    page.cropbox = RectangleObject([24, 400, 560, 776])
+    page.rotate(angle)
+    if flatten:
+        page.transfer_rotation_to_content()
+    elif inherit:
+        page["/Parent"][name("Rotate")] = page[name("Rotate")]
+        del page[name("Rotate")]
+
+
+def unit_scaled(writer, page):
+    writer.pdf_header = "%PDF-1.7"
+    page.scale_by(0.5)
+    page[name("UserUnit")] = NumberObject(2)
+
+
+def pages():
+    for angle in [90, 180, 270]:
+        variant(FIXED, f"crop-rotate-{angle}",
+                lambda w, p: turn_page(w, p, angle, inherit=angle == 90))
+        variant("subset-reordered.pdf", f"crop-flatten-{angle}",
+                lambda w, p: turn_page(w, p, angle, flatten=True))
+    variant("wrong-unicode.pdf", "crop-flatten-90-wrong",
+            lambda w, p: turn_page(w, p, 90, flatten=True))
+    variant(FIXED, "invalid-rotate", lambda w, p: p.__setitem__(name("Rotate"), NumberObject(45)))
+    variant(FIXED, "unit-scaled", unit_scaled)
+    variant(FIXED, "invalid-unit", lambda w, p: p.__setitem__(name("UserUnit"), NumberObject(0)))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", nargs="?", choices=["forms", "all"], default="all")
+    parser.add_argument("stage", nargs="?", choices=["forms", "pages", "all"], default="all")
     args = parser.parse_args()
     if args.stage in ("forms", "all"):
         forms()
+    if args.stage in ("pages", "all"):
+        pages()
     print(f"Generated geometry fixtures ({args.stage}).")
 
 

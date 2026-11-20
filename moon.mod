@@ -1,6 +1,6 @@
 name = "WeiR-h/pdftextguard"
 repository = "https://github.com/WeiR-h/pdftextguard"
-version = "0.0.3"
+version = "0.0.4"
 readme = "README.md"
 license = "MIT"
 preferred_target = "js"

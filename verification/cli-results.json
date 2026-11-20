@@ -1,8 +1,8 @@
 {
-  "toolVersion": "0.0.3",
+  "toolVersion": "0.0.4",
   "node": "v24.13.0",
-  "artifactSha256": "e88ca5d43c5657b034c37da115eb93bd273f4d5822761437ebf87090ffc69206",
-  "casesPassed": 29,
+  "artifactSha256": "7270437ebccffd23020cd296c1758d1dc3f63c99d0e9b8a220eba6735eb3d296",
+  "casesPassed": 37,
   "cases": [
     {
       "name": "same ready export",
@@ -536,15 +536,15 @@
       }
     },
     {
-      "name": "page rotation is outside v0.0.1 scope",
+      "name": "changed display rotation is inconclusive",
       "exit": 2,
       "aligned": 0,
       "compared": 0,
       "mismatches": 0,
       "diagnostic": {
-        "code": "unsupported",
-        "side": "candidate",
-        "message": "page rotation",
+        "code": "unaligned_page",
+        "side": "both",
+        "message": "page boxes differ",
         "page": 1
       }
     },
@@ -1016,6 +1016,181 @@
             }
           ]
         }
+      }
+    },
+    {
+      "name": "rotate 90 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotate 180 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotate 270 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotation normalized Unicode regression",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "display_origin_x": 334.947266,
+          "display_origin_y": 512,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 275,
+          "string_offset": 148,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 734.947266,
+          "origin_y": 564,
+          "display_origin_x": 334.947266,
+          "display_origin_y": 512,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid rotation is rejected",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "page Rotate must be an integer multiple of 90 (found 45)"
+      }
+    },
+    {
+      "name": "equal non-default UserUnit is supported",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "changed UserUnit remains inconclusive across readers",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_page",
+        "side": "both",
+        "message": "page UserUnit differs",
+        "page": 1
+      }
+    },
+    {
+      "name": "zero UserUnit is rejected",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "UserUnit must be positive",
+        "page": 1
       }
     }
   ]

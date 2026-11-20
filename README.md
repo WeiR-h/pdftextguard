@@ -1,21 +1,21 @@
-# PDFTextGuard v0.0.3
+# PDFTextGuard v0.0.4
 
 在 CI 中比较同一源文档的两次 PDF 导出。页面看起来一样时，复制或搜索的文字仍可能变化。PDFTextGuard 对齐两版实际绘制的字形，比较对应的 ToUnicode 映射，并报告页码、字体对象及具体 CMap 规则。
 
 ## 两分钟试用
 
-下载并解压 [v0.0.3 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.3/PDFTextGuard-v0.0.3.zip)。
+下载并解压 [v0.0.4 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.4/PDFTextGuard-v0.0.4.zip)。
 
 在本目录运行。已构建的命令只需 Node.js 22.3 或更新版本，本机验证使用 Node.js 24.13.0。
 
 ```powershell
-node .\dist\pdftextguard-v0.0.3.cjs --version
+node .\dist\pdftextguard-v0.0.4.cjs --version
 
 # 同一内容用不同字体子集绘制。预期 0，300 个字形成功对齐。
-node .\dist\pdftextguard-v0.0.3.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
+node .\dist\pdftextguard-v0.0.4.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
 
 # 文件仍能正常显示，但首个字符的复制结果从 ! 变成 Z。预期 1。
-node .\dist\pdftextguard-v0.0.3.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
+node .\dist\pdftextguard-v0.0.4.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
 ```
 
 CLI 接收两份本地文件，离线、只读运行。也可在 MoonBit 中调用 `check(baseline : Bytes, candidate : Bytes) -> Report`。
@@ -56,10 +56,10 @@ CLI 接收两份本地文件，离线、只读运行。也可在 MoonBit 中调�
 在你的 MoonBit 项目中添加本版模块，使用 JavaScript 后端运行。
 
 ```sh
-moon add WeiR-h/pdftextguard@0.0.3
+moon add WeiR-h/pdftextguard@0.0.4
 ```
 
-在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.3/)。
+在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.4/)。
 
 ## 从源码构建与复跑
 

@@ -77,6 +77,10 @@ fn align_page(
   if baseline.blocked || candidate.blocked {
     return false
   }
+  if baseline.page_unit != candidate.page_unit {
+    findings.block(note("unaligned_page", "both", "page UserUnit differs", page~))
+    return false
+  }
   if !same_bounds(baseline.bounds, candidate.bounds) {
     findings.block(note("unaligned_page", "both", "page boxes differ", page~))
     return false

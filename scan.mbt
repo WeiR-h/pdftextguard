@@ -9,42 +9,27 @@ priv struct DocumentScan {
 }
 
 ///|
-fn page_bounds(
+fn page_frame(
   doc : Document,
   page : @pdfpage.PdfPage,
   raw : @syntax.PdfObject,
-) -> Array[Double] raise GuardError {
-  if !(page.rotate is Rotate0) {
-    raise Unsupported("page rotation")
-  }
-  if field(raw, b"UserUnit") is Some(value) {
-    if doc.number(value) != 1.0 {
-      raise Unsupported("nonstandard page user units")
-    }
-  }
+) -> PageFrame raise GuardError {
   if field(raw, b"Annots") is Some(value) {
     let resolved = doc.resolve(value)
     if !(resolved is PdfNull) && !doc.array(resolved).is_empty() {
       raise Unsupported("page annotations or widgets")
     }
   }
-  let media = doc.array(page.mediabox)
+  let media = doc.page_box(page.mediabox)
   let crop = match field(page.rest, b"CropBox") {
-    Some(value) => doc.array(value)
+    Some(value) => doc.page_box(value)
     None => media
   }
-  if media.length() != 4 || crop.length() != 4 {
-    raise Invalid("invalid page box")
+  let unit = match field(raw, b"UserUnit") {
+    Some(value) => doc.number(value)
+    None => 1.0
   }
-  let bounds : Array[Double] = []
-  for values in [media, crop] {
-    let coords = values.map(value => doc.number(value))
-    if coords[0] >= coords[2] || coords[1] >= coords[3] {
-      raise Invalid("inverted or empty PDF page box")
-    }
-    bounds.append(coords)
-  }
-  bounds
+  normalize_page(media, crop, doc.page_rotation(raw), unit)
 }
 
 ///|
@@ -57,9 +42,10 @@ fn scan_page(
   glyph_budget : Int32,
 ) -> PageScan raise GuardError {
   let raw = doc.resolve(@syntax.PdfObject::PdfIndirect(ref_number))
-  let bounds = page_bounds(doc, page, raw)
+  let frame = page_frame(doc, page, raw)
   let output : PageScan = {
-    bounds,
+    bounds: frame.bounds,
+    page_unit: frame.unit,
     glyphs: [],
     diagnostics: [],
     blocked: false,
@@ -92,6 +78,7 @@ fn scan_page(
     stream_index: 0,
     decoded_offset: None,
     glyph_budget,
+    page_transform: frame.transform,
     form_path: [],
     nested_error: Ref(None),
   }
@@ -130,6 +117,8 @@ fn scan_document(bytes : Bytes, side : String) -> DocumentScan {
   try {
     let doc = read_document(bytes)
     let pages = doc.pdf.pages_of_pagetree() catch {
+      PageRotationExpected(degrees) =>
+        raise Invalid("page Rotate must be an integer multiple of 90 (found \{degrees})")
       _ => raise Invalid("cannot read the PDF page tree")
     }
     let page_numbers = doc.pdf.page_reference_numbers() catch {
@@ -154,6 +143,7 @@ fn scan_document(bytes : Bytes, side : String) -> DocumentScan {
         error =>
           {
             bounds: [],
+            page_unit: 1,
             glyphs: [],
             blocked: true,
             syntax_error: false,
