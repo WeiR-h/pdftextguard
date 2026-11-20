@@ -27,8 +27,8 @@ assert.equal(versionResult.status, 0);
 assert.equal(versionResult.stdout.trim(), 'PDFTextGuard v' + version);
 
 const cases = [];
-function check(name, baseline, candidate, exit, extra = () => {}) {
-  const stdout = run('check', baseline, candidate, '--json');
+function check(name, baseline, candidate, exit, extra = () => {}, flags = []) {
+  const stdout = run('check', baseline, candidate, '--json', ...flags);
   const report = JSON.parse(stdout.stdout);
   assert.equal(stdout.status, exit, name + ': ' + stdout.stdout);
   assert.equal(report.exit_code, exit, name);
@@ -146,6 +146,25 @@ check('invalid rotation is rejected', fixed, input('invalid-rotate'), 2, reason(
 check('equal non-default UserUnit is supported', input('unit-scaled'), input('unit-scaled'), 0, clean(300));
 check('changed UserUnit remains inconclusive across readers', fixed, input('unit-scaled'), 2, reason('unaligned_page', /UserUnit/));
 check('zero UserUnit is rejected', fixed, input('invalid-unit'), 2, reason('invalid_input', /positive/));
+check('reordered draws are inconclusive by default', fixed, input('draws-reordered'), 2, reason('unaligned_glyph'));
+check('opt-in reordering uses a unique mapping for all characters', fixed, input('draws-reordered'), 0, report => {
+  clean(300)(report);
+  assert.equal(report.position_aligned_pages, 1);
+}, ['--align-by-position']);
+check('opt-in reordering preserves the changed ToUnicode witness', fixed, input('draws-reordered-wrong'), 1, report => {
+  assert.equal(report.position_aligned_pages, 1);
+  assert.equal(report.mismatched_occurrences, 1);
+  const [issue] = report.diagnostics;
+  assert.deepEqual(issue.baseline.unicode, ['U+0021']);
+  assert.deepEqual(issue.candidate.unicode, ['U+005A']);
+  assert.ok(issue.candidate.operator_offset > issue.baseline.operator_offset);
+}, ['--align-by-position']);
+check('opt-in does not bypass different positions', fixed, input('shifted'), 2,
+  reason('unaligned_glyph'), ['--align-by-position']);
+check('near but unique positional anchors', input('positions-unique-before'),
+  input('positions-unique-after'), 0, clean(2));
+check('cross-file tolerance ambiguity is inconclusive', input('positions-tight-before'),
+  input('positions-tight-after'), 2, reason('ambiguous_alignment', /more than one compatible/));
 
 const human = run('check', fixed, input('wrong-unicode'));
 assert.equal(human.status, 1);

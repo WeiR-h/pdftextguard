@@ -44,7 +44,7 @@ extern "js" fn exit_status(code : Int32) -> Unit =
 
 ///|
 fn usage() -> String {
-  "PDFTextGuard v\{@guard.version}\nUsage: pdftextguard check <baseline.pdf> <candidate.pdf> [--json]\nExit: 0 pass, 1 regression, 2 inconclusive or input error."
+  "PDFTextGuard v\{@guard.version}\nUsage: pdftextguard check <baseline.pdf> <candidate.pdf> [--json] [--align-by-position]\nUse --align-by-position to compare explicit mappings even if drawing order changed.\nExit: 0 pass, 1 regression, 2 inconclusive or input error."
 }
 
 ///|
@@ -86,6 +86,11 @@ fn emit(report : @guard.Report, json : Bool) -> Unit {
     println(
       "\{report.outcome.to_upper()} | \{report.aligned_glyphs} aligned | \{report.compared_glyphs} checked | \{report.mismatched_occurrences} mapping changes",
     )
+    if report.position_aligned_pages > 0 {
+      println(
+        "  \{report.position_aligned_pages} page(s) matched by unique position after drawing order changed",
+      )
+    }
     for item in report.diagnostics {
       println("* \{item.code} [\{item.side}] \{item.message}")
       if item.cmap is Some(detail) {
@@ -128,8 +133,19 @@ fn main {
     println("PDFTextGuard v\{@guard.version}")
     return
   }
-  let output_json = args.length() == 4 && args[3] == "--json"
-  if (args.length() != 3 && !output_json) || args[0] != "check" {
+  let mut output_json = false
+  let mut by_position = false
+  let mut invalid = args.length() < 3 || args[0] != "check"
+  if !invalid {
+    for flag in args[3:] {
+      match flag {
+        "--json" if !output_json => output_json = true
+        "--align-by-position" if !by_position => by_position = true
+        _ => invalid = true
+      }
+    }
+  }
+  if invalid {
     emit(
       @guard.input_error("command", usage()),
       args.any(arg => arg == "--json"),
@@ -146,5 +162,10 @@ fn main {
     emit(@guard.input_error("candidate", candidate.error()), output_json)
     return
   }
-  emit(@guard.check(baseline.bytes(), candidate.bytes()), output_json)
+  let report = if by_position {
+    @guard.check_by_position(baseline.bytes(), candidate.bytes())
+  } else {
+    @guard.check(baseline.bytes(), candidate.bytes())
+  }
+  emit(report, output_json)
 }

@@ -118,7 +118,9 @@ fn scan_document(bytes : Bytes, side : String) -> DocumentScan {
     let doc = read_document(bytes)
     let pages = doc.pdf.pages_of_pagetree() catch {
       PageRotationExpected(degrees) =>
-        raise Invalid("page Rotate must be an integer multiple of 90 (found \{degrees})")
+        raise Invalid(
+          "page Rotate must be an integer multiple of 90 (found \{degrees})",
+        )
       _ => raise Invalid("cannot read the PDF page tree")
     }
     let page_numbers = doc.pdf.page_reference_numbers() catch {

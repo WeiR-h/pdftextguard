@@ -6,6 +6,7 @@ priv struct Findings {
   mut aligned : Int32
   mut compared : Int32
   mut changed : Int32
+  mut position_aligned_pages : Int32
 }
 
 ///|
@@ -24,37 +25,6 @@ fn Findings::block(self : Findings, entry : Diagnostic) -> Unit {
 }
 
 ///|
-fn find_overlap(uses : Array[GlyphUse]) -> GlyphUse? {
-  // Check neighboring buckets as compared origins may differ by 0.01 pt.
-  let seen : Map[(Int32, Int32), Array[GlyphUse]] = Map([])
-  for use_ in uses {
-    let x = (use_.pose.x * 50.0).to_int()
-    let y = (use_.pose.y * 50.0).to_int()
-    for dx in -1..<=1 {
-      for dy in -1..<=1 {
-        if seen.get((x + dx, y + dy)) is Some(neighbors) {
-          if neighbors.any(other => {
-              other.same_shape(use_) && same_pose(other.pose, use_.pose)
-            }) {
-            return Some(use_)
-          }
-        }
-      }
-    }
-    match seen.get((x, y)) {
-      None => seen.set((x, y), [use_])
-      Some(items) => {
-        if items.length() >= 64 {
-          return Some(use_)
-        }
-        items.push(use_)
-      }
-    }
-  }
-  None
-}
-
-///|
 fn same_bounds(a : Array[Double], b : Array[Double]) -> Bool {
   if a.length() != b.length() {
     return false
@@ -68,85 +38,28 @@ fn same_bounds(a : Array[Double], b : Array[Double]) -> Bool {
 }
 
 ///|
-fn align_page(
-  baseline : PageScan,
-  candidate : PageScan,
-  page : Int32,
-  findings : Findings,
-) -> Bool {
-  if baseline.blocked || candidate.blocked {
-    return false
-  }
-  if baseline.page_unit != candidate.page_unit {
-    findings.block(note("unaligned_page", "both", "page UserUnit differs", page~))
-    return false
-  }
-  if !same_bounds(baseline.bounds, candidate.bounds) {
-    findings.block(note("unaligned_page", "both", "page boxes differ", page~))
-    return false
-  }
-  if baseline.glyphs.length() != candidate.glyphs.length() {
-    findings.block(
-      note(
-        "unaligned_page",
-        "both",
-        "drawn glyph counts differ (\{baseline.glyphs.length()} vs \{candidate.glyphs.length()})",
-        page~,
-      ),
-    )
-    return false
-  }
-  for i, previous in baseline.glyphs {
-    let current = candidate.glyphs[i]
-    if !previous.same_shape(current) ||
-      !same_pose(previous.pose, current.pose) ||
-      !near(previous.advance, current.advance) {
-      let item = note(
-        "unaligned_glyph",
-        "both",
-        "font family, glyph outline, drawing order or position differs at occurrence \{i + 1}",
-        page~,
-      )
-      findings.block({
-        ..item,
-        baseline: Some(previous.site()),
-        candidate: Some(current.site()),
-      })
-      return false
-    }
-  }
-  let overlap_baseline = find_overlap(baseline.glyphs)
-  let overlap_candidate = find_overlap(candidate.glyphs)
-  if overlap_baseline is Some(_) || overlap_candidate is Some(_) {
-    let item = note(
-      "ambiguous_alignment",
-      "both",
-      "overlapping indistinguishable glyph occurrences",
-      page~,
-    )
-    findings.block({
-      ..item,
-      baseline: overlap_baseline.map(g => g.site()),
-      candidate: overlap_candidate.map(g => g.site()),
-    })
-    return false
-  }
-  true
-}
-
-///|
 fn compare_page(
   baseline : PageScan,
   candidate : PageScan,
   page : Int32,
   findings : Findings,
+  allow_reorder : Bool,
 ) -> Unit {
-  if !align_page(baseline, candidate, page, findings) {
-    return
+  let alignment = match
+    align_page(baseline, candidate, page, findings, allow_reorder) {
+    None => return
+    Some(alignment) => alignment
+  }
+  if alignment is UniquePositions(_) {
+    findings.position_aligned_pages += 1
   }
   findings.aligned += baseline.glyphs.length()
   for i, old in baseline.glyphs {
-    let current = candidate.glyphs[i]
+    let j = match alignment {
+      DrawingOrder => i
+      UniquePositions(indices) => indices[i]
+    }
+    let current = candidate.glyphs[j]
     if old.trace.cmap_valid && current.trace.cmap_valid {
       match (old.glyph.mapping, current.glyph.mapping) {
         (Some(previous), Some(current_mapping)) if previous.scalars ==
@@ -211,6 +124,22 @@ fn check_baseline_mappings(
 /// Compare the text layer of two exports of the same source document.
 /// Exit code 2 indicates unverifiable coverage, including an invalid baseline.
 pub fn check(baseline : Bytes, candidate : Bytes) -> Report {
+  check_impl(baseline, candidate, false)
+}
+
+///|
+/// Compare explicit mappings by unique position if the drawing order changed.
+/// This mode does not evaluate extraction or reading order.
+pub fn check_by_position(baseline : Bytes, candidate : Bytes) -> Report {
+  check_impl(baseline, candidate, true)
+}
+
+///|
+fn check_impl(
+  baseline : Bytes,
+  candidate : Bytes,
+  allow_reorder : Bool,
+) -> Report {
   let old = scan_document(baseline, "baseline")
   let current = scan_document(candidate, "candidate")
   let findings : Findings = {
@@ -220,6 +149,7 @@ pub fn check(baseline : Bytes, candidate : Bytes) -> Report {
     aligned: 0,
     compared: 0,
     changed: 0,
+    position_aligned_pages: 0,
   }
   for issue in old.diagnostics {
     findings.add(issue)
@@ -236,7 +166,7 @@ pub fn check(baseline : Bytes, candidate : Bytes) -> Report {
     )
   } else {
     for i, page in old.pages {
-      compare_page(page, current.pages[i], i + 1, findings)
+      compare_page(page, current.pages[i], i + 1, findings, allow_reorder)
     }
   }
   if findings.aligned == 0 && !findings.blocked {
@@ -264,6 +194,7 @@ pub fn check(baseline : Bytes, candidate : Bytes) -> Report {
     baseline_glyphs: old.total_glyphs,
     candidate_glyphs: current.total_glyphs,
     aligned_glyphs: findings.aligned,
+    position_aligned_pages: findings.position_aligned_pages,
     compared_glyphs: findings.compared,
     mismatched_occurrences: findings.changed,
     diagnostics_omitted: findings.omitted,
@@ -284,6 +215,7 @@ pub fn input_error(side : String, message : String) -> Report {
     baseline_glyphs: 0,
     candidate_glyphs: 0,
     aligned_glyphs: 0,
+    position_aligned_pages: 0,
     compared_glyphs: 0,
     mismatched_occurrences: 0,
     diagnostics_omitted: 0,

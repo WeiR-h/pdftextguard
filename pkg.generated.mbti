@@ -8,6 +8,8 @@ import {
 // Values
 pub fn check(Bytes, Bytes) -> Report
 
+pub fn check_by_position(Bytes, Bytes) -> Report
+
 pub fn input_error(String, String) -> Report
 
 pub let version : String
@@ -77,6 +79,7 @@ pub struct Report {
   baseline_glyphs : Int32
   candidate_glyphs : Int32
   aligned_glyphs : Int32
+  position_aligned_pages : Int32
   compared_glyphs : Int32
   mismatched_occurrences : Int32
   diagnostics_omitted : Int32

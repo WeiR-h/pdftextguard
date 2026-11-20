@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.4",
-  "artifactSha256": "7270437ebccffd23020cd296c1758d1dc3f63c99d0e9b8a220eba6735eb3d296",
+  "toolVersion": "0.0.5",
+  "artifactSha256": "5ef4f74a6668bcc4da3b91a2fa7545a8217057254a889380ff9de42ec4831c62",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",
@@ -309,6 +309,20 @@
       "rgb_sha256": "1e8a8573096029f4e7f15ca6f08b46f598577d6745e5dee544e13de7d51e959e",
       "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
       "text_prefix": "!\"#%&'()*,-./0123456"
+    }
+  },
+  "order_cases": {
+    "draws-reordered.pdf": {
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "9617e4222168987af26795fac3070c91dbc1cc60f03e2055c73c15dc854fec10",
+      "text_prefix": "ūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽž",
+      "same_extraction_order_as_baseline": false
+    },
+    "draws-reordered-wrong.pdf": {
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "b6f0663905f9d8f710cf3ba2d6127cab47a51082f75543c80d28ad075c27154a",
+      "text_prefix": "ūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽž",
+      "same_extraction_order_as_baseline": false
     }
   }
 }

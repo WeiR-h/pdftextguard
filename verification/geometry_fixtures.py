@@ -1,6 +1,7 @@
 """Create supported and deliberately inconclusive page-geometry controls."""
 import argparse
 from pathlib import Path
+import re
 
 from pypdf import PdfWriter
 from pypdf.generic import (
@@ -110,14 +111,39 @@ def pages():
     variant(FIXED, "invalid-unit", lambda w, p: p.__setitem__(name("UserUnit"), NumberObject(0)))
 
 
+def reverse_draws(writer, page):
+    data = page.get_contents().get_data()
+    spans = list(re.finditer(rb"(?ms)^q\n.*?^Q\n", data))
+    assert len(spans) == 10
+    assert all(a.end() == b.start() for a, b in zip(spans, spans[1:]))
+    changed = data[:spans[0].start()] + b"".join(m[0] for m in reversed(spans)) + data[spans[-1].end():]
+    page[name("Contents")] = stream(writer, changed)
+
+
+def tight_draws(writer, page, x0, x1):
+    content = "\n".join(f"BT /F2 10 Tf 1 0 0 1 {x} 720 Tm <0001> Tj ET" for x in [x0, x1])
+    page[name("Contents")] = stream(writer, (content + "\n").encode("ascii"))
+
+
+def ordering():
+    variant("subset-reordered.pdf", "draws-reordered", reverse_draws)
+    variant("wrong-unicode.pdf", "draws-reordered-wrong", reverse_draws)
+    variant(FIXED, "positions-tight-before", lambda w, p: tight_draws(w, p, 48, 48.016))
+    variant(FIXED, "positions-tight-after", lambda w, p: tight_draws(w, p, 48.008, 48.024))
+    variant(FIXED, "positions-unique-before", lambda w, p: tight_draws(w, p, 48, 48.03))
+    variant(FIXED, "positions-unique-after", lambda w, p: tight_draws(w, p, 48.008, 48.038))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", nargs="?", choices=["forms", "pages", "all"], default="all")
+    parser.add_argument("stage", nargs="?", choices=["forms", "pages", "ordering", "all"], default="all")
     args = parser.parse_args()
     if args.stage in ("forms", "all"):
         forms()
     if args.stage in ("pages", "all"):
         pages()
+    if args.stage in ("ordering", "all"):
+        ordering()
     print(f"Generated geometry fixtures ({args.stage}).")
 
 

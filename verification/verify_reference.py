@@ -2,6 +2,7 @@
 from hashlib import sha256
 from importlib.metadata import version
 from contextlib import closing
+from collections import Counter
 import json
 from pathlib import Path
 import re
@@ -169,6 +170,20 @@ def verify_page_rendering(baseline):
     return cases
 
 
+def verify_order_rendering(baseline, baseline_text):
+    values = Counter(c for c in baseline_text if not c.isspace())
+    wrong = values.copy()
+    wrong["!"] -= 1
+    wrong["Z"] += 1
+    result = {}
+    for filename, expected in [("draws-reordered.pdf", values), ("draws-reordered-wrong.pdf", wrong)]:
+        facts, text = pdfium_observation(FIXTURES / filename)
+        assert facts["rgb_sha256"] == baseline["rgb_sha256"]
+        assert Counter(c for c in text if not c.isspace()) == expected
+        result[filename] = {**facts, "same_extraction_order_as_baseline": text == baseline_text}
+    return result
+
+
 def main():
     meta = json.loads((FIXTURES / "generator.json").read_text(encoding="utf-8"))
     facts, cmaps, texts = {}, {}, {}
@@ -201,11 +216,12 @@ def main():
     assert facts[subset]["font_program_sha256"] != facts[baseline]["font_program_sha256"]
     assert facts[subset]["first_gid"] == 300 and facts[baseline]["first_gid"] == 1
 
-    artifact_proof = verify_report_offsets(facts, cmaps)
+    checker = verify_report_offsets(facts, cmaps)
     form_results = verify_form_rendering(facts[baseline], texts[baseline])
     page_results = verify_page_rendering(facts[baseline])
+    order_results = verify_order_rendering(facts[baseline], texts[baseline])
     result = {
-        **artifact_proof,
+        **checker,
         "all_assertions_passed": True,
         "pypdf": version("pypdf"),
         "pypdfium2": version("pypdfium2"),
@@ -215,6 +231,7 @@ def main():
         "cases": facts,
         "form_cases": form_results,
         "page_cases": page_results,
+        "order_cases": order_results,
     }
     (HERE / "reference-results.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",

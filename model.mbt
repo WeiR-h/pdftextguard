@@ -1,5 +1,5 @@
 ///|
-pub let version : String = "0.0.4"
+pub let version : String = "0.0.5"
 
 ///|
 #derive(@json.ToJson)
@@ -109,6 +109,7 @@ pub struct Report {
   baseline_glyphs : Int32
   candidate_glyphs : Int32
   aligned_glyphs : Int32
+  position_aligned_pages : Int32
   compared_glyphs : Int32
   mismatched_occurrences : Int32
   diagnostics_omitted : Int32
