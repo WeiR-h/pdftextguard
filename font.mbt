@@ -1,6 +1,20 @@
 ///|
 priv struct Font {
   resource : String
+  data : FontData
+  mut cmap_reported : Bool
+}
+
+///|
+priv struct ResolvedGlyph {
+  gid : Int32
+  outline : String
+  width : Double
+  mapping : Mapping?
+}
+
+///|
+priv struct FontData {
   family : Bytes
   object : ObjectRef?
   descendant : ObjectRef?
@@ -11,7 +25,7 @@ priv struct Font {
   cid_to_gid : Bytes?
   default_width : Double
   widths : Map[Int32, Double]
-  mut cmap_reported : Bool
+  used : Map[Int32, ResolvedGlyph]
 }
 
 ///|
@@ -95,7 +109,28 @@ fn Document::font(
   resource : Bytes,
 ) -> Font raise GuardError {
   let fonts = self.resolve(required_field(resources, b"Font"))
-  let font_raw = required_field(fonts, resource)
+  let raw = required_field(fonts, resource)
+  let data = match raw {
+    PdfIndirect(number) =>
+      match self.fonts.get(number) {
+        Some(cached) => cached
+        None => {
+          let decoded = self.read_font(raw, resource)
+          self.fonts.set(number, decoded)
+          decoded
+        }
+      }
+    _ => self.read_font(raw, resource)
+  }
+  { resource: "/" + name_string(resource), data, cmap_reported: false, }
+}
+
+///|
+fn Document::read_font(
+  self : Document,
+  font_raw : @syntax.PdfObject,
+  resource : Bytes,
+) -> FontData raise GuardError {
   let font = self.resolve(font_raw)
   if self.name(required_field(font, b"Subtype")) != b"Type0" ||
     self.name(required_field(font, b"Encoding")) != b"Identity-H" {
@@ -159,7 +194,6 @@ fn Document::font(
     raise Invalid("invalid /DW width")
   }
   {
-    resource: "/" + name_string(resource),
     family: strip_subset_tag(base_font),
     object: self.reference(font_raw),
     descendant: self.reference(descendant_raw),
@@ -170,12 +204,12 @@ fn Document::font(
     cid_to_gid,
     default_width,
     widths: self.cid_widths(descendant),
-    cmap_reported: false,
+    used: Map([]),
   }
 }
 
 ///|
-fn Font::gid(self : Font, cid : Int32) -> Int32 raise GuardError {
+fn FontData::gid(self : FontData, cid : Int32) -> Int32 raise GuardError {
   let gid = match self.cid_to_gid {
     None => cid
     Some(table) => {
@@ -189,4 +223,27 @@ fn Font::gid(self : Font, cid : Int32) -> Int32 raise GuardError {
     raise Unsupported("used CID resolves to the missing-glyph slot")
   }
   gid
+}
+
+///|
+fn FontData::resolve_glyph(
+  self : FontData,
+  cid : Int32,
+) -> ResolvedGlyph raise GuardError {
+  if self.used.get(cid) is Some(cached) {
+    return cached
+  }
+  let gid = self.gid(cid)
+  let glyph = {
+    gid,
+    outline: self.ttf.signature(gid, 0),
+    width: self.widths.get(cid).unwrap_or(self.default_width),
+    mapping: if self.cmap.issues.is_empty() {
+      self.cmap.entries.get(cid)
+    } else {
+      None
+    },
+  }
+  self.used.set(cid, glyph)
+  glyph
 }

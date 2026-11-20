@@ -12,13 +12,59 @@ priv struct Graphics {
 
 ///|
 priv struct GlyphUse {
-  family : Bytes
-  outline : String
+  glyph : ResolvedGlyph
+  cid : Int32
   pose : Matrix
   advance : Double
-  mapping : Mapping?
+  trace : TextTrace
+  byte_index : Int32
+}
+
+///|
+// Shared by all glyphs in one PDF string. Format complete witnesses only
+// on diagnostic paths rather than on every successful glyph comparison.
+priv struct TextTrace {
+  page : Int32
+  stream : ObjectRef?
+  stream_index : Int32
+  operator : String
+  operator_offset : Int32
+  string_offset : Int32
+  font : Font
   cmap_valid : Bool
-  site : UseSite
+}
+
+///|
+fn GlyphUse::same_shape(a : GlyphUse, b : GlyphUse) -> Bool {
+  a.trace.font.data.family == b.trace.font.data.family &&
+  a.glyph.outline == b.glyph.outline
+}
+
+///|
+fn GlyphUse::site(self : GlyphUse) -> UseSite {
+  let trace = self.trace
+  let data = trace.font.data
+  {
+    page: trace.page,
+    content_object: trace.stream,
+    stream_index: trace.stream_index,
+    operator: trace.operator,
+    operator_offset: trace.operator_offset,
+    string_offset: trace.string_offset,
+    byte_index: self.byte_index,
+    font_resource: trace.font.resource,
+    font_object: data.object,
+    descendant_object: data.descendant,
+    font_file_object: data.file,
+    cmap_object: data.cmap_object,
+    code: display_hex(self.cid, 4),
+    cid: self.cid,
+    gid: self.glyph.gid,
+    origin_x: self.pose.x,
+    origin_y: self.pose.y,
+    unicode: self.glyph.mapping.map(m => unicode_labels(m.scalars)),
+    rule: self.glyph.mapping.map(m => m.rule),
+  }
 }
 
 ///|
@@ -124,13 +170,14 @@ fn append_cmap_diagnostics(
   page : PageScan,
   side : String,
   font : Font,
-  site : UseSite,
+  occurrence : GlyphUse,
 ) -> Unit {
-  if font.cmap_reported || font.cmap.issues.is_empty() {
+  if font.cmap_reported || font.data.cmap.issues.is_empty() {
     return
   }
   font.cmap_reported = true
-  for issue in font.cmap.issues {
+  let site = occurrence.site()
+  for issue in font.data.cmap.issues {
     if issue.unsupported {
       page.blocked = true
     } else {
@@ -156,8 +203,8 @@ fn append_cmap_diagnostics(
       },
       cmap: Some({
         font_resource: font.resource,
-        font_object: font.object,
-        cmap_object: font.cmap_object,
+        font_object: font.data.object,
+        cmap_object: font.data.cmap_object,
         span: issue.span,
         declared: issue.declared,
         observed: issue.observed,
@@ -192,63 +239,39 @@ fn ContentScan::show_string(
   if data.length() / 2 > self.glyph_budget - self.output.glyphs.length() {
     raise Unsupported("PDF exceeds the 100,000 text glyph limit")
   }
+  let trace : TextTrace = {
+    page: self.page,
+    stream: self.stream,
+    stream_index: self.stream_index,
+    operator: op,
+    operator_offset: op_at,
+    string_offset: token.start,
+    font,
+    cmap_valid: font.data.cmap.issues.is_empty(),
+  }
+  let font_matrix : Matrix = {
+    a: gs.size * gs.scale,
+    b: 0,
+    c: 0,
+    d: gs.size,
+    x: 0,
+    y: gs.rise,
+  }
   for i = 0; i < data.length(); i = i + 2 {
     let cid = (data[i].to_int() << 8) | data[i + 1].to_int()
-    let gid = font.gid(cid)
-    let outline = font.ttf.signature(gid, 0)
-    let pose = gs.ctm
-      .multiply(self.text)
-      .multiply({
-        a: gs.size * gs.scale,
-        b: 0,
-        c: 0,
-        d: gs.size,
-        x: 0,
-        y: gs.rise,
-      })
+    let glyph = font.data.resolve_glyph(cid)
+    let pose = gs.ctm.multiply(self.text).multiply(font_matrix)
     guard_matrix(pose)
     if (pose.a * pose.d - pose.b * pose.c).abs() < 0.000000001 {
       raise Unsupported("degenerate text transform")
     }
-    let width = font.widths.get(cid).unwrap_or(font.default_width)
     // Tw applies to a single-byte 0x20 code, never to Identity-H two-byte codes.
-    let advance = (width * gs.size / 1000.0 + gs.spacing) * gs.scale
-    let mapping = if font.cmap.issues.is_empty() {
-      font.cmap.entries.get(cid)
-    } else {
-      None
+    let advance = (glyph.width * gs.size / 1000.0 + gs.spacing) * gs.scale
+    let occurrence = { glyph, cid, pose, advance, trace, byte_index: i, }
+    if !trace.cmap_valid && !font.cmap_reported {
+      append_cmap_diagnostics(self.output, self.side, font, occurrence)
     }
-    let site : UseSite = {
-      page: self.page,
-      content_object: self.stream,
-      stream_index: self.stream_index,
-      operator: op,
-      operator_offset: op_at,
-      string_offset: token.start,
-      byte_index: i,
-      font_resource: font.resource,
-      font_object: font.object,
-      descendant_object: font.descendant,
-      font_file_object: font.file,
-      cmap_object: font.cmap_object,
-      code: display_hex(cid, 4),
-      cid,
-      gid,
-      origin_x: pose.x,
-      origin_y: pose.y,
-      unicode: mapping.map(m => unicode_labels(m.scalars)),
-      rule: mapping.map(m => m.rule),
-    }
-    append_cmap_diagnostics(self.output, self.side, font, site)
-    self.output.glyphs.push({
-      family: font.family,
-      outline,
-      pose,
-      advance,
-      mapping,
-      cmap_valid: font.cmap.issues.is_empty(),
-      site,
-    })
+    self.output.glyphs.push(occurrence)
     self.text = self.text.translate(advance, 0)
   }
 }

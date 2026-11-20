@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.1",
-  "artifactSha256": "b19b5ccfc71051dfcdece7e627231f87abd838b8b67e1b3e5a01be4051ec5988",
+  "toolVersion": "0.0.2",
+  "artifactSha256": "a4005424e72397eaf003aa8c087b9b3c80d596413654ea6b2d3eb1c576d75412",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",

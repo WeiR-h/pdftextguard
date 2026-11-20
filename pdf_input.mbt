@@ -7,6 +7,7 @@ priv struct Document {
   generations : Map[Int32, Int32]
   mut decoded_bytes : Int32
   outline_budget : Ref[Int32]
+  fonts : Map[Int32, FontData]
 }
 
 ///|
@@ -58,7 +59,13 @@ fn read_document(data : Bytes) -> Document raise GuardError {
   for entry in pdf.parsed_object_entries() {
     generations.set(entry.0, entry.1)
   }
-  { pdf, generations, decoded_bytes: 0, outline_budget: Ref(16 * 1024 * 1024), }
+  {
+    pdf,
+    generations,
+    decoded_bytes: 0,
+    outline_budget: Ref(16 * 1024 * 1024),
+    fonts: Map([]),
+  }
 }
 
 ///|

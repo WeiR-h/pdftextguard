@@ -34,9 +34,7 @@ fn find_overlap(uses : Array[GlyphUse]) -> GlyphUse? {
       for dy in -1..<=1 {
         if seen.get((x + dx, y + dy)) is Some(neighbors) {
           if neighbors.any(other => {
-              other.family == use_.family &&
-              other.outline == use_.outline &&
-              same_pose(other.pose, use_.pose)
+              other.same_shape(use_) && same_pose(other.pose, use_.pose)
             }) {
             return Some(use_)
           }
@@ -96,8 +94,7 @@ fn align_page(
   }
   for i, previous in baseline.glyphs {
     let current = candidate.glyphs[i]
-    if previous.family != current.family ||
-      previous.outline != current.outline ||
+    if !previous.same_shape(current) ||
       !same_pose(previous.pose, current.pose) ||
       !near(previous.advance, current.advance) {
       let item = note(
@@ -108,8 +105,8 @@ fn align_page(
       )
       findings.block({
         ..item,
-        baseline: Some(previous.site),
-        candidate: Some(current.site),
+        baseline: Some(previous.site()),
+        candidate: Some(current.site()),
       })
       return false
     }
@@ -125,8 +122,8 @@ fn align_page(
     )
     findings.block({
       ..item,
-      baseline: overlap_baseline.map(g => g.site),
-      candidate: overlap_candidate.map(g => g.site),
+      baseline: overlap_baseline.map(g => g.site()),
+      candidate: overlap_candidate.map(g => g.site()),
     })
     return false
   }
@@ -146,14 +143,18 @@ fn compare_page(
   findings.aligned += baseline.glyphs.length()
   for i, old in baseline.glyphs {
     let current = candidate.glyphs[i]
-    if old.cmap_valid && current.cmap_valid {
-      match (old.mapping, current.mapping) {
+    if old.trace.cmap_valid && current.trace.cmap_valid {
+      match (old.glyph.mapping, current.glyph.mapping) {
         (Some(previous), Some(current_mapping)) if previous.scalars ==
           current_mapping.scalars => findings.compared += 1
         (Some(_), _) => {
           findings.compared += 1
           findings.changed += 1
-          let item = if current.mapping is None {
+          if findings.entries.length() >= 80 {
+            findings.omitted += 1
+            continue
+          }
+          let item = if current.glyph.mapping is None {
             note(
               "mapping_missing",
               "candidate",
@@ -170,8 +171,8 @@ fn compare_page(
           }
           findings.add({
             ..item,
-            baseline: Some(old.site),
-            candidate: Some(current.site),
+            baseline: Some(old.site()),
+            candidate: Some(current.site()),
           })
         }
         (None, _) => ()
@@ -187,8 +188,8 @@ fn check_baseline_mappings(
 ) -> Unit {
   for page in baseline.pages {
     for glyph in page.glyphs {
-      if glyph.cmap_valid && glyph.mapping is None {
-        let site = glyph.site
+      if glyph.trace.cmap_valid && glyph.glyph.mapping is None {
+        let site = glyph.site()
         let item = note(
           "baseline_unmapped",
           "baseline",
