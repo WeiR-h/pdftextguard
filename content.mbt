@@ -1,7 +1,7 @@
 ///|
 priv struct Graphics {
   ctm : Matrix
-  font : Bytes?
+  font : FontSelection?
   size : Double
   spacing : Double
   scale : Double
@@ -32,6 +32,7 @@ priv struct TextTrace {
   string_offset : Int32
   font : Font
   cmap_valid : Bool
+  form_path : Array[FormCall]?
 }
 
 ///|
@@ -64,6 +65,7 @@ fn GlyphUse::site(self : GlyphUse) -> UseSite {
     origin_y: self.pose.y,
     unicode: self.glyph.mapping.map(m => unicode_labels(m.scalars)),
     rule: self.glyph.mapping.map(m => m.rule),
+    form_path: trace.form_path,
   }
 }
 
@@ -81,9 +83,9 @@ priv struct ContentScan {
   doc : Document
   side : String
   page : Int32
-  resources : @syntax.PdfObject
+  scope : ResourceScope
+  page_scope : ResourceScope
   output : PageScan
-  fonts : Map[Bytes, Font]
   stack : Array[Graphics]
   mut graphics : Graphics
   mut in_text : Bool
@@ -94,6 +96,20 @@ priv struct ContentScan {
   mut stream_index : Int32
   mut decoded_offset : Int32?
   glyph_budget : Int32
+  form_path : Array[FormCall]
+  nested_error : Ref[StreamSite?]
+}
+
+///|
+priv struct ResourceScope {
+  resources : @syntax.PdfObject
+  fonts : Map[Bytes, Font]
+}
+
+///|
+priv struct FontSelection {
+  name : Bytes
+  scope : ResourceScope
 }
 
 ///|
@@ -150,18 +166,20 @@ fn ContentScan::move_line(self : ContentScan, x : Double, y : Double) -> Unit {
 
 ///|
 fn ContentScan::active_font(self : ContentScan) -> Font raise GuardError {
-  let resource = match self.graphics.font {
-    Some(name) if self.graphics.size > 0 => name
+  let selected = match self.graphics.font {
+    Some(binding) if self.graphics.size > 0 => binding
     _ => raise Invalid("text shown without a positive-size active font")
   }
-  if self.fonts.get(resource) is Some(font) {
+  let resource = selected.name
+  let scope = selected.scope
+  if scope.fonts.get(resource) is Some(font) {
     return font
   }
-  if self.fonts.length() >= 64 {
-    raise Unsupported("page has too many used fonts")
+  if scope.fonts.length() >= 64 {
+    raise Unsupported("too many used fonts in one resource dictionary")
   }
-  let font = self.doc.font(self.resources, resource)
-  self.fonts.set(resource, font)
+  let font = self.doc.font(scope.resources, resource)
+  scope.fonts.set(resource, font)
   font
 }
 
@@ -248,6 +266,7 @@ fn ContentScan::show_string(
     string_offset: token.start,
     font,
     cmap_valid: font.data.cmap.issues.is_empty(),
+    form_path: self.form_trace(),
   }
   let font_matrix : Matrix = {
     a: gs.size * gs.scale,
@@ -322,8 +341,19 @@ fn ContentScan::resource(
   category : Bytes,
   name : Bytes,
 ) -> @syntax.PdfObject raise GuardError {
-  let dictionary = self.doc.resolve(required_field(self.resources, category))
-  self.doc.resolve(required_field(dictionary, name))
+  self.doc.resolve(self.raw_resource(category, name))
+}
+
+///|
+fn ContentScan::raw_resource(
+  self : ContentScan,
+  category : Bytes,
+  name : Bytes,
+) -> @syntax.PdfObject raise GuardError {
+  let dictionary = self.doc.resolve(
+    required_field(self.scope.resources, category),
+  )
+  required_field(dictionary, name)
 }
 
 ///|
@@ -414,7 +444,11 @@ fn ContentScan::operator(
       arg_count(op, args, 2)
       let name = args[0].as_name()
       let size = args[1].as_number()
-      self.graphics = { ..self.graphics, font: Some(name), size, }
+      self.graphics = {
+        ..self.graphics,
+        font: Some({ name, scope: self.scope, }),
+        size,
+      }
     }
     "Tm" => {
       self.require_text(op)
@@ -485,13 +519,16 @@ fn ContentScan::operator(
       if field(ext, b"Font") is Some(_) {
         raise Unsupported("ExtGState font selection")
       }
+      if field(ext, b"SMask") is Some(mask) {
+        match self.doc.resolve(mask) {
+          PdfNameObject(n) if pdf_name_payload(n) == b"None" => ()
+          _ => raise Unsupported("soft-mask content")
+        }
+      }
     }
     "Do" => {
       arg_count(op, args, 1)
-      let xobject = self.resource(b"XObject", args[0].as_name())
-      if self.doc.name(required_field(xobject, b"Subtype")) != b"Image" {
-        raise Unsupported("Form or non-image XObject")
-      }
+      self.invoke_xobject(args[0].as_name(), op_at)
     }
     "BI" => raise Unsupported("inline image in content stream")
     "w"
@@ -549,6 +586,10 @@ fn ContentScan::read_stream(
   self.stream_index = stream_index
   self.decoded_offset = None
   let data = self.doc.decoded_stream(raw, 8 * 1024 * 1024)
+  if data.length() > 64 * 1024 * 1024 - self.doc.content_bytes {
+    raise Unsupported("expanded page and form content exceeds the scan limit")
+  }
+  self.doc.content_bytes += data.length()
   let lexer : Lexer = { data, pos: 0, }
   let mut args : Array[Token] = []
   let nest : Array[Bool] = [] // true for dictionary, false for array

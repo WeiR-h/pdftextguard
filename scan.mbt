@@ -65,13 +65,14 @@ fn scan_page(
     blocked: false,
     syntax_error: false,
   }
+  let scope : ResourceScope = { resources: page.resources, fonts: Map([]), }
   let scan : ContentScan = {
     doc,
     side,
     page: number,
-    resources: page.resources,
+    scope,
+    page_scope: scope,
     output,
-    fonts: Map([]),
     stack: [],
     graphics: {
       ctm: identity,
@@ -91,6 +92,8 @@ fn scan_page(
     stream_index: 0,
     decoded_offset: None,
     glyph_budget,
+    form_path: [],
+    nested_error: Ref(None),
   }
   try {
     let streams = doc.contents(raw)
@@ -100,21 +103,14 @@ fn scan_page(
     for i, stream in streams {
       scan.read_stream(stream, i)
     }
-    if scan.in_text || !scan.stack.is_empty() || scan.marked_depth != 0 {
-      raise Invalid("unclosed text, graphics or marked-content state")
-    }
+    scan.require_closed()
   } catch {
     error => {
       output.blocked = true
       let d = note(guard_code(error), side, guard_message(error), page=number)
       output.diagnostics.push({
         ..d,
-        stream: Some({
-          page: number,
-          content_object: scan.stream,
-          stream_index: scan.stream_index,
-          decoded_offset: scan.decoded_offset,
-        }),
+        stream: Some(scan.nested_error.val.unwrap_or(scan.stream_site())),
       })
     }
   }

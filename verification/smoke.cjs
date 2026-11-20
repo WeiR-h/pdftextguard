@@ -113,6 +113,22 @@ check('ToUnicode loss is visible for used characters', fixed, input('missing-tou
 check('baseline has no reliable mapping', input('missing-tounicode'), fixed, 2, reason('baseline_unmapped'));
 check('missing input', fixed, input('does-not-exist'), 2, reason('input_error'));
 check('invalid container', fixed, join(__dirname, 'fixtures/source-300.txt'), 2, reason('invalid_input'));
+check('page to nested forms preserves text scope and transform', fixed, input('nested-form'), 0, clean(300));
+check('legacy form inherits page resources', fixed, input('nested-form-page-resources'), 0, clean(300));
+check('explicit form scope cannot fall through', fixed, input('nested-form-missing-resource'), 2, reason('invalid_input', /Font/));
+check('recursive forms are inconclusive', fixed, input('recursive-form'), 2, report => {
+  reason('unsupported', /recursive Form/)(report);
+  assert.equal(report.diagnostics[0].stream.form_path[0].resource, '/Loop');
+});
+check('nested form cross-subset drift', input('nested-form'), input('nested-form-wrong'), 1, report => {
+  assert.equal(report.mismatched_occurrences, 1);
+  const [issue] = report.diagnostics;
+  assert.equal(issue.code, 'mapping_changed');
+  assert.deepEqual(issue.baseline.form_path.map(x => x.resource), ['/Outer', '/Leaf']);
+  assert.deepEqual(issue.candidate.form_path.map(x => x.resource), ['/Outer', '/ChangedLeaf']);
+  assert.equal(issue.candidate.content_object.number, issue.candidate.form_path[1].form_object.number);
+  assert.deepEqual(issue.candidate.unicode, ['U+005A']);
+});
 
 const human = run('check', fixed, input('wrong-unicode'));
 assert.equal(human.status, 1);

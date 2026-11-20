@@ -8,6 +8,9 @@ priv struct Document {
   mut decoded_bytes : Int32
   outline_budget : Ref[Int32]
   fonts : Map[Int32, FontData]
+  decoded_streams : Map[Int32, Bytes]
+  mut content_bytes : Int32
+  mut form_calls : Int32
 }
 
 ///|
@@ -65,6 +68,9 @@ fn read_document(data : Bytes) -> Document raise GuardError {
     decoded_bytes: 0,
     outline_budget: Ref(16 * 1024 * 1024),
     fonts: Map([]),
+    decoded_streams: Map([]),
+    content_bytes: 0,
+    form_calls: 0,
   }
 }
 
@@ -219,6 +225,13 @@ fn Document::decoded_stream(
   raw : @syntax.PdfObject,
   limit : Int32,
 ) -> Bytes raise GuardError {
+  if raw is PdfIndirect(number) &&
+    self.decoded_streams.get(number) is Some(cached) {
+    if cached.length() > limit {
+      raise Unsupported("decoded stream exceeds its size limit")
+    }
+    return cached
+  }
   let stream = self.resolve(raw)
   if !(stream is PdfStreamObject(_)) {
     raise Invalid("expected a PDF stream for text, font or CMap data")
@@ -262,6 +275,9 @@ fn Document::decoded_stream(
       raise Unsupported("unsupported PDF stream filter /\{name_string(name)}")
   }
   self.decoded_bytes += decoded.length()
+  if raw is PdfIndirect(number) {
+    self.decoded_streams.set(number, decoded)
+  }
   decoded
 }
 

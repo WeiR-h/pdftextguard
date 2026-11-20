@@ -1,5 +1,5 @@
 ///|
-pub let version : String = "0.0.2"
+pub let version : String = "0.0.3"
 
 ///|
 #derive(@json.ToJson)
@@ -10,6 +10,18 @@ pub struct ObjectRef {
 
 ///|
 pub extend ObjectRef with @json.ToJson::{to_json}
+
+///|
+#derive(@json.ToJson)
+pub struct FormCall {
+  resource : String
+  caller_object : ObjectRef?
+  operator_offset : Int32
+  form_object : ObjectRef
+}
+
+///|
+pub extend FormCall with @json.ToJson::{to_json}
 
 ///|
 #derive(@json.ToJson)
@@ -33,6 +45,7 @@ pub struct UseSite {
   origin_y : Double
   unicode : Array[String]?
   rule : CMapSpan?
+  form_path : Array[FormCall]?
 }
 
 ///|
@@ -45,6 +58,7 @@ pub struct StreamSite {
   content_object : ObjectRef?
   stream_index : Int32
   decoded_offset : Int32?
+  form_path : Array[FormCall]?
 }
 
 ///|

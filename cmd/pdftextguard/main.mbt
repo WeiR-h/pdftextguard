@@ -69,6 +69,13 @@ fn print_site(label : String, site : @guard.UseSite) -> Unit {
   println(
     "  \{label}: page \{site.page}, \{site.operator} @\{site.operator_offset} in \{ref_label(site.content_object)}, font \{ref_label(site.font_object)}, cmap \{ref_label(site.cmap_object)}, <\{site.code}> GID \{site.gid} -> \{unicode} (\{rule})",
   )
+  if site.form_path is Some(path) {
+    for call in path {
+      println(
+        "    via \{call.resource} Do @\{call.operator_offset} in \{ref_label(call.caller_object)} -> \{ref_label(Some(call.form_object))}",
+      )
+    }
+  }
 }
 
 ///|

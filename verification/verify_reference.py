@@ -102,7 +102,50 @@ def verify_report_offsets(facts, cmaps):
         assert raw_rule.startswith(b"<") and raw_rule.endswith(b"]")
         value_start = rule["value_offset"]
         assert cmap[value_start:value_start + len(target)].lower() == target, witness
+    verify_form_witnesses(cases["nested form cross-subset drift"]["diagnostic"])
     return {"toolVersion": cli["toolVersion"], "artifactSha256": cli["artifactSha256"]}
+
+
+def verify_form_witnesses(diagnostic):
+    for side, filename, target in [
+        ("baseline", "nested-form.pdf", b"<0021>"),
+        ("candidate", "nested-form-wrong.pdf", b"<005a>"),
+    ]:
+        witness = diagnostic[side]
+        page = PdfReader(FIXTURES / filename, strict=True).pages[0]
+        resources = page["/Resources"]
+        caller = page.raw_get("/Contents")
+        for call in witness["form_path"]:
+            data = caller.get_object().get_data()
+            offset = call["operator_offset"]
+            assert call["caller_object"] == object_ref(caller)
+            assert data[offset:offset + 2] == b"Do"
+            assert data[:offset].rstrip().endswith(call["resource"].encode("ascii"))
+            caller = resources["/XObject"].raw_get(call["resource"])
+            assert call["form_object"] == object_ref(caller)
+            resources = caller.get_object()["/Resources"]
+        assert witness["content_object"] == object_ref(caller)
+        at = witness["operator_offset"]
+        assert caller.get_object().get_data()[at:at + 2] == b"TJ"
+        font = resources["/Font"][witness["font_resource"]]
+        cmap = font.raw_get("/ToUnicode")
+        assert witness["cmap_object"] == object_ref(cmap)
+        value_at = witness["rule"]["value_offset"]
+        assert cmap.get_object().get_data()[value_at:value_at + len(target)].lower() == target
+
+
+def verify_form_rendering(baseline, baseline_text):
+    results = {}
+    for file, expected in [
+        ("nested-form.pdf", baseline_text),
+        ("nested-form-page-resources.pdf", baseline_text),
+        ("nested-form-wrong.pdf", "Z" + baseline_text[1:]),
+    ]:
+        facts, text = pdfium_observation(FIXTURES / file)
+        assert facts["rgb_sha256"] == baseline["rgb_sha256"]
+        assert text == expected
+        results[file] = facts
+    return results
 
 
 def main():
@@ -138,6 +181,7 @@ def main():
     assert facts[subset]["first_gid"] == 300 and facts[baseline]["first_gid"] == 1
 
     artifact_proof = verify_report_offsets(facts, cmaps)
+    form_results = verify_form_rendering(facts[baseline], texts[baseline])
     result = {
         **artifact_proof,
         "all_assertions_passed": True,
@@ -147,6 +191,7 @@ def main():
         "pillow": version("Pillow"),
         "notes": "Only the original 0.17.2/0.18.0 exports reproduce the upstream release bug. Reordered subsets and the altered Unicode table are controlled PDFKit exports.",
         "cases": facts,
+        "form_cases": form_results,
     }
     (HERE / "reference-results.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",

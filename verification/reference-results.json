@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.2",
-  "artifactSha256": "a4005424e72397eaf003aa8c087b9b3c80d596413654ea6b2d3eb1c576d75412",
+  "toolVersion": "0.0.3",
+  "artifactSha256": "e88ca5d43c5657b034c37da115eb93bd273f4d5822761437ebf87090ffc69206",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",
@@ -250,6 +250,23 @@
       "text_utf8_sha256": "e5d91a5a1b625ee2b8802e34ee41b474a52270495282b33da0ca733acc84ef6d",
       "text_prefix": "!\"#%&'()*,-./0123456",
       "input_sha256": "c7142d21c7288ebb5aff1d017094be741e2d2222cde18f713f2195198c8d860b"
+    }
+  },
+  "form_cases": {
+    "nested-form.pdf": {
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+      "text_prefix": "!\"#%&'()*,-./0123456"
+    },
+    "nested-form-page-resources.pdf": {
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+      "text_prefix": "!\"#%&'()*,-./0123456"
+    },
+    "nested-form-wrong.pdf": {
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "df808d0115f9c64357c7f8d7340fc628e2d4c69a18f1db58c26cdc7845fccb8d",
+      "text_prefix": "Z\"#%&'()*,-./0123456"
     }
   }
 }
