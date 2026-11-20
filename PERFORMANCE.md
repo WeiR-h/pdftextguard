@@ -1,6 +1,6 @@
 # PDFTextGuard 迭代与性能记录
 
-同一台 Windows 机器，Node.js 24.13.0。每个版本每组样本先预热一次，再按轮次交替顺序运行 9 次。计时覆盖进程启动、两份输入读取、PDF 检查与 JSON 输出。每次都验证退出码为 0、用字对齐数和语义比较数与预期一致。原始计时和输入、二进制 SHA-256 见 [benchmark-results.json](verification/benchmark-results.json)。
+同一台 Windows 机器，Node.js 24.13.0。每个版本每组样本先预热一次，再按轮次交替顺序运行 9 次。计时覆盖进程启动、两份输入读取、PDF 检查与 JSON 输出。每次都验证退出码为 0、用字对齐数和语义比较数与预期一致。[前五版计时](verification/history/benchmark-v0.0.5.json) · [当前版与 v0.0.5 对照](verification/benchmark-results.json)
 
 | 版本 | 本轮修改 | 单页 300 字形中位耗时 | 48 页 14,400 字形中位耗时 |
 | --- | --- | ---: | ---: |

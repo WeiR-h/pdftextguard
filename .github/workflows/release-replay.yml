@@ -1,0 +1,54 @@
+name: Replay PDFTextGuard release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published v0.0.x tag
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PDFTEXTGUARD_TAG: ${{ inputs.version || github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.event.release.tag_name }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify archive and run the portable demo
+        run: |
+          python3 verification/fetch_release.py "$PDFTEXTGUARD_TAG" "$RUNNER_TEMP/pdftextguard"
+          bundle="$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG"
+          node "$bundle/verification/demo.cjs"
+          node "$bundle/verification/smoke.cjs"
+      - name: Check PDF export gate outcomes
+        run: |
+          bundle="$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG"
+          fixtures="$bundle/verification/fixtures"
+          report_gate() {
+            actual=0
+            node "$bundle/verification/gate.cjs" "$fixtures/pdfkit-0.18.0-300.pdf" \
+              "$fixtures/$1.pdf" "$RUNNER_TEMP/$1.json" || actual=$?
+            test "$actual" = "$2"
+            test -s "$RUNNER_TEMP/$1.json"
+          }
+          report_gate subset-reordered 0
+          report_gate pdfkit-0.17.2-300 1
+          report_gate encrypted 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pdftextguard-reports
+          path: |
+            ${{ runner.temp }}/subset-reordered.json
+            ${{ runner.temp }}/pdfkit-0.17.2-300.json
+            ${{ runner.temp }}/encrypted.json

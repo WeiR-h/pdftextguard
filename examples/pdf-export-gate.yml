@@ -1,0 +1,30 @@
+# Copy these steps after the exporter creates baseline.pdf and candidate.pdf.
+name: PDF export gate
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    env:
+      PDFTEXTGUARD_TAG: v0.0.6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Compare the two exports
+        run: |
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/WeiR-h/pdftextguard/$PDFTEXTGUARD_TAG/verification/fetch_release.py" \
+            --output "$RUNNER_TEMP/fetch_pdftextguard.py"
+          python3 "$RUNNER_TEMP/fetch_pdftextguard.py" "$PDFTEXTGUARD_TAG" "$RUNNER_TEMP/pdftextguard"
+          node "$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG/verification/gate.cjs" \
+            baseline.pdf candidate.pdf "$RUNNER_TEMP/pdftextguard-report.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pdftextguard-report
+          path: ${{ runner.temp }}/pdftextguard-report.json
