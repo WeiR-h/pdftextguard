@@ -1,0 +1,113 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "WeiR-h/pdftextguard"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn check(Bytes, Bytes) -> Report
+
+pub fn input_error(String, String) -> Report
+
+pub let version : String
+
+// Errors
+
+// Types and methods
+#derive(@json.ToJson)
+pub struct CMapDiagnostic {
+  font_resource : String
+  font_object : ObjectRef?
+  cmap_object : ObjectRef?
+  span : CMapSpan
+  declared : Int32?
+  observed : Int32?
+}
+pub fn CMapDiagnostic::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct CMapSpan {
+  operator : String
+  decoded_offset : Int32
+  decoded_end : Int32
+  value_offset : Int32?
+  range_index : Int32?
+}
+pub fn CMapSpan::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct Diagnostic {
+  code : String
+  side : String
+  message : String
+  page : Int32?
+  stream : StreamSite?
+  baseline : UseSite?
+  candidate : UseSite?
+  cmap : CMapDiagnostic?
+}
+pub fn Diagnostic::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct ObjectRef {
+  number : Int32
+  generation : Int32
+}
+pub fn ObjectRef::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct Report {
+  schema_version : Int32
+  tool_version : String
+  outcome : String
+  exit_code : Int32
+  coverage : String
+  baseline_pages : Int32
+  candidate_pages : Int32
+  baseline_glyphs : Int32
+  candidate_glyphs : Int32
+  aligned_glyphs : Int32
+  compared_glyphs : Int32
+  mismatched_occurrences : Int32
+  diagnostics_omitted : Int32
+  diagnostics : Array[Diagnostic]
+}
+pub fn Report::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct StreamSite {
+  page : Int32
+  content_object : ObjectRef?
+  stream_index : Int32
+  decoded_offset : Int32?
+}
+pub fn StreamSite::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub struct UseSite {
+  page : Int32
+  content_object : ObjectRef?
+  stream_index : Int32
+  operator : String
+  operator_offset : Int32
+  string_offset : Int32
+  byte_index : Int32
+  font_resource : String
+  font_object : ObjectRef?
+  descendant_object : ObjectRef?
+  font_file_object : ObjectRef?
+  cmap_object : ObjectRef?
+  code : String
+  cid : Int32
+  gid : Int32
+  origin_x : Double
+  origin_y : Double
+  unicode : Array[String]?
+  rule : CMapSpan?
+}
+pub fn UseSite::to_json(Self) -> @json.Json
+
+// Type aliases
+
+// Traits

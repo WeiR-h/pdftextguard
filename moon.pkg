@@ -1,0 +1,12 @@
+import {
+  "moonbit-community/flate/zlib",
+  "moonbitlang/core/buffer",
+  "moonbitlang/pdflite" @pdf,
+  "moonbitlang/pdflite/core" @pdfcore,
+  "moonbitlang/pdflite/page" @pdfpage,
+  "moonbitlang/pdflite/reader" @pdfreader,
+  "moonbitlang/pdflite/syntax",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}

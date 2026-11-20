@@ -1,0 +1,7 @@
+import {
+  "WeiR-h/pdftextguard" @guard,
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+
+pkgtype(kind: "executable")

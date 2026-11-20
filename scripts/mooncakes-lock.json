@@ -1,0 +1,22 @@
+[
+  {
+    "name": "moonbitlang/pdflite",
+    "version": "0.4.2",
+    "sha256": "2fbe4cbfe44898a02498f2d0efc488c54d69adc9e53f88a4ec2cd612aa5cf802"
+  },
+  {
+    "name": "moonbit-community/flate",
+    "version": "0.10.0",
+    "sha256": "a91aa4e425fcec47a2dedfbe58850e76723aeb2d51af941c542bb26f8c0c3b5c"
+  },
+  {
+    "name": "moonbitlang/async",
+    "version": "0.22.9",
+    "sha256": "771dcb86efa6a42802b0f6a1e3fa2039e805ac40a94114701d30011b62b18a89"
+  },
+  {
+    "name": "moonbitlang/x",
+    "version": "0.5.6",
+    "sha256": "76e14604debf264a07b788be96ae83f797cc21230e56ac5c9dc819a5877ac725"
+  }
+]

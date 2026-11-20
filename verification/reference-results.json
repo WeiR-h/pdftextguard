@@ -1,0 +1,255 @@
+{
+  "toolVersion": "0.0.1",
+  "artifactSha256": "b19b5ccfc71051dfcdece7e627231f87abd838b8b67e1b3e5a01be4051ec5988",
+  "all_assertions_passed": true,
+  "pypdf": "6.21.4",
+  "pypdfium2": "5.13.0",
+  "pdfium": "153.0.7999.0",
+  "pillow": "13.0.0",
+  "notes": "Only the original 0.17.2/0.18.0 exports reproduce the upstream release bug. Reordered subsets and the altered Unicode table are controlled PDFKit exports.",
+  "cases": {
+    "pdfkit-0.17.2-300.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 300,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 1,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "8033a0a471621723b41bda92e1f9e0d5c2c09145f22067bac31aa3ad01c29ddc",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "ae8354730e1352eae5a31ed57dcb243a5ddc5e0890889f9695fcd4976f2a2437",
+      "text_prefix": "\u0001\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016",
+      "input_sha256": "528e4b71be1571eb3ad9c9f191f70414fc1087103ac1562fe0a0dc0df6d8de78"
+    },
+    "pdfkit-0.18.0-300.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 300,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 2,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "8033a0a471621723b41bda92e1f9e0d5c2c09145f22067bac31aa3ad01c29ddc",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "ff6e2e3bde5109cd2fc9a8e33f14a3046ef66ccad3255d9cb9ecbc4f1c0da013"
+    },
+    "pdfkit-0.17.2-200.pdf": {
+      "painted_occurrences": 200,
+      "distinct_painted_gids": 200,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 1,
+      "actual_ranges": 1,
+      "cmap_entries": 201,
+      "font_program_sha256": "9baa63f015e7cd7153d5b86605b0b973cab3c3694f9159b8731130a057126809",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "f4fe2f067b29ea463e5c4a401ad4e1bd640168efd4effc0b2054a5916ae3d511",
+      "text_utf8_sha256": "4328f898a48f3107cf68b5b8489814277c6a456d7b8d535721526d2773e385cf",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "328fd4697d8ec929155cf436e492e58a77078d610f8d85d49f4f55155a712390"
+    },
+    "pdfkit-0.18.0-200.pdf": {
+      "painted_occurrences": 200,
+      "distinct_painted_gids": 200,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 1,
+      "actual_ranges": 1,
+      "cmap_entries": 201,
+      "font_program_sha256": "9baa63f015e7cd7153d5b86605b0b973cab3c3694f9159b8731130a057126809",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "f4fe2f067b29ea463e5c4a401ad4e1bd640168efd4effc0b2054a5916ae3d511",
+      "text_utf8_sha256": "4328f898a48f3107cf68b5b8489814277c6a456d7b8d535721526d2773e385cf",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "3a49a8392caf970d4452e82a8932848566386672b5f63c4a1d239a444d581bc5"
+    },
+    "pdfkit-0.17.2-repeated-a.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 1,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 1,
+      "actual_ranges": 1,
+      "cmap_entries": 2,
+      "font_program_sha256": "cd6bbeb9e768d22e12ff5418a46c8ea662cbb09db6f7308657d4c3e364e434d0",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "04e1b2c64f6b7453f2f4a8f173dddc7946a92ef8e365d9e83c01e11f5186bb64",
+      "text_utf8_sha256": "72b2d2fe2a1e1f187ae5466f84687f5342a9bad07fa4699cf20b33eef4cb2703",
+      "text_prefix": "AAAAAAAAAAAAAAAAAAAA",
+      "input_sha256": "6ee2ebe30264aaa6990134c5b50fe5c82a1b076dc5f493f44e65362fca951152"
+    },
+    "subset-reordered.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 300,
+      "first_code": "012C",
+      "first_gid": 300,
+      "first_tj_offset": 203,
+      "declared_mappings": 2,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "bc4f65575ee2dd9d47f47fea41269bf811d4f1066acde47ba3273159f640180f",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "bd4e22e22d79e4165c6995dbd1597b1cccd728ab8d45957ca7a526b21f168701"
+    },
+    "wrong-unicode.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 300,
+      "first_code": "012C",
+      "first_gid": 300,
+      "first_tj_offset": 203,
+      "declared_mappings": 2,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "bc4f65575ee2dd9d47f47fea41269bf811d4f1066acde47ba3273159f640180f",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+      "text_utf8_sha256": "df808d0115f9c64357c7f8d7340fc628e2d4c69a18f1db58c26cdc7845fccb8d",
+      "text_prefix": "Z\"#%&'()*,-./0123456",
+      "input_sha256": "202d312f973f79ba52baeccc3508131e71351e7fdec2f3ca8978a0bef70e05c6"
+    },
+    "shifted.pdf": {
+      "painted_occurrences": 300,
+      "distinct_painted_gids": 300,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 2,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "8033a0a471621723b41bda92e1f9e0d5c2c09145f22067bac31aa3ad01c29ddc",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "05641a43698ee8ae8d3197cf6b8bff62606e924103267b4a19c5fb8f6a4d8123",
+      "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "b39df16c7ad94559f20f955df6911a26d6bd5145364c9791fff5c4e2acd0edc8"
+    },
+    "overprint.pdf": {
+      "painted_occurrences": 301,
+      "distinct_painted_gids": 300,
+      "first_code": "0001",
+      "first_gid": 1,
+      "first_tj_offset": 203,
+      "declared_mappings": 2,
+      "actual_ranges": 2,
+      "cmap_entries": 301,
+      "font_program_sha256": "8033a0a471621723b41bda92e1f9e0d5c2c09145f22067bac31aa3ad01c29ddc",
+      "cmap_object": {
+        "number": 17,
+        "generation": 0
+      },
+      "content_object": {
+        "number": 5,
+        "generation": 0
+      },
+      "font_object": {
+        "number": 8,
+        "generation": 0
+      },
+      "rgb_sha256": "4050fc000b8a4144d262090e01c4f8a04bf8757c624e1d468bcf64eb5a3551bb",
+      "text_utf8_sha256": "e5d91a5a1b625ee2b8802e34ee41b474a52270495282b33da0ca733acc84ef6d",
+      "text_prefix": "!\"#%&'()*,-./0123456",
+      "input_sha256": "c7142d21c7288ebb5aff1d017094be741e2d2222cde18f713f2195198c8d860b"
+    }
+  }
+}

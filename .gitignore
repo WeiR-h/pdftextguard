@@ -1,0 +1,6 @@
+/_build/
+/.mooncakes/
+/.work/
+/dist/
+/verification/pdfkit/node_modules/
+__pycache__/

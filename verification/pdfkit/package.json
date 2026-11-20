@@ -1,0 +1,8 @@
+{
+  "name": "pdftextguard-fixtures",
+  "private": true,
+  "dependencies": {
+    "pdfkit-bad": "npm:pdfkit@0.17.2",
+    "pdfkit-good": "npm:pdfkit@0.18.0"
+  }
+}

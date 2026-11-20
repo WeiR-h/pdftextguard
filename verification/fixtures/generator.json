@@ -1,0 +1,83 @@
+{
+  "pdfkit": [
+    "0.17.2",
+    "0.18.0"
+  ],
+  "node": "v24.13.0",
+  "fontSha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f",
+  "sourceSha256": "23bb001d5aac5e66183eb0893ca43ddeb8f001da9c3946569e64735304da3786",
+  "cases": [
+    {
+      "file": "pdfkit-0.17.2-300.pdf",
+      "sha256": "528e4b71be1571eb3ad9c9f191f70414fc1087103ac1562fe0a0dc0df6d8de78",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 301
+    },
+    {
+      "file": "pdfkit-0.18.0-300.pdf",
+      "sha256": "ff6e2e3bde5109cd2fc9a8e33f14a3046ef66ccad3255d9cb9ecbc4f1c0da013",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 301
+    },
+    {
+      "file": "pdfkit-0.17.2-200.pdf",
+      "sha256": "328fd4697d8ec929155cf436e492e58a77078d610f8d85d49f4f55155a712390",
+      "expectedGlyphs": 200,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 201
+    },
+    {
+      "file": "pdfkit-0.18.0-200.pdf",
+      "sha256": "3a49a8392caf970d4452e82a8932848566386672b5f63c4a1d239a444d581bc5",
+      "expectedGlyphs": 200,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 201
+    },
+    {
+      "file": "pdfkit-0.17.2-repeated-a.pdf",
+      "sha256": "6ee2ebe30264aaa6990134c5b50fe5c82a1b076dc5f493f44e65362fca951152",
+      "expectedGlyphs": 1,
+      "firstSourceGid": 36,
+      "firstSubsetGid": 1,
+      "cmapEntries": 2
+    },
+    {
+      "file": "subset-reordered.pdf",
+      "sha256": "bd4e22e22d79e4165c6995dbd1597b1cccd728ab8d45957ca7a526b21f168701",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 300,
+      "cmapEntries": 301
+    },
+    {
+      "file": "wrong-unicode.pdf",
+      "sha256": "202d312f973f79ba52baeccc3508131e71351e7fdec2f3ca8978a0bef70e05c6",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 300,
+      "cmapEntries": 301
+    },
+    {
+      "file": "shifted.pdf",
+      "sha256": "b39df16c7ad94559f20f955df6911a26d6bd5145364c9791fff5c4e2acd0edc8",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 301
+    },
+    {
+      "file": "overprint.pdf",
+      "sha256": "c7142d21c7288ebb5aff1d017094be741e2d2222cde18f713f2195198c8d860b",
+      "expectedGlyphs": 300,
+      "firstSourceGid": 4,
+      "firstSubsetGid": 1,
+      "cmapEntries": 301
+    }
+  ]
+}
