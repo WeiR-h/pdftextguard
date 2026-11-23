@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.10",
-  "artifactSha256": "fde24c3731c5fa2454de8ecc739400afa6995dce71ccf4a299347f0262823b11",
+  "toolVersion": "0.0.11",
+  "artifactSha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",
@@ -356,6 +356,42 @@
       "decoded_end": 287,
       "value_offset": 280,
       "range_index": 1
+    }
+  },
+  "qpdf": {
+    "generator": "QPDF 12.4.1",
+    "cases": {
+      "qpdf-normal.pdf": {
+        "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+        "text_utf8_sha256": "0301d2890275104e1c3b310da20fc643d3999676ea4381b0dc8af9cc412ea51c",
+        "text_prefix": "!\"#%&'()*,-./0123456",
+        "predictor": 12,
+        "xref_field_widths": [
+          1,
+          2,
+          1
+        ],
+        "indexed_compressed_objects": 13
+      },
+      "qpdf-wrong-unicode.pdf": {
+        "rgb_sha256": "81591362de24d88618e9013a7dca70eb234e27ec618889a88cb20b2acb8efb9f",
+        "text_utf8_sha256": "df808d0115f9c64357c7f8d7340fc628e2d4c69a18f1db58c26cdc7845fccb8d",
+        "text_prefix": "Z\"#%&'()*,-./0123456",
+        "predictor": 12,
+        "xref_field_widths": [
+          1,
+          2,
+          1
+        ],
+        "indexed_compressed_objects": 13
+      }
+    },
+    "verified_changed_rule": {
+      "operator": "bfrange",
+      "decoded_offset": 2066,
+      "decoded_end": 2396,
+      "value_offset": 2389,
+      "range_index": 44
     }
   }
 }

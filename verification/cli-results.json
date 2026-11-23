@@ -1,8 +1,8 @@
 {
-  "toolVersion": "0.0.10",
+  "toolVersion": "0.0.11",
   "node": "v24.13.0",
-  "artifactSha256": "fde24c3731c5fa2454de8ecc739400afa6995dce71ccf4a299347f0262823b11",
-  "casesPassed": 48,
+  "artifactSha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
+  "casesPassed": 53,
   "cases": [
     {
       "name": "same ready export",
@@ -155,6 +155,151 @@
         "code": "unsupported",
         "side": "candidate",
         "message": "PDF exceeds the object count limit"
+      }
+    },
+    {
+      "name": "QPDF 12.4.1 PNG Up xref rewrite",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "QPDF rewrite of controlled wrong mapping",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 15,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          }
+        }
+      }
+    },
+    {
+      "name": "QPDF xref control columns",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "cross-reference predictor columns differ from the entry width"
+      }
+    },
+    {
+      "name": "QPDF xref control length",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "cross-reference predictor row length differs from its index"
+      }
+    },
+    {
+      "name": "QPDF xref control row",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "cross-reference predictor row does not use PNG Up"
       }
     },
     {

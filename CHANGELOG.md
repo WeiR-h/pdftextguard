@@ -1,5 +1,10 @@
 # 更新记录
 
+## v0.0.11 · 2026-11-23
+
+- 支持 QPDF 12.4.1 写出的单次保存交叉引用流。限定直接的 `FlateDecode`、`Predictor 12`（PNG Up）及与索引一致的列宽和行数。
+- 增加真实 QPDF 转存样本、受控 Unicode 错映射和三种行结构对照。用 PDFium 和 pypdf 独立复核渲染、提取和定位证据。
+
 ## v0.0.10 · 2026-11-23
 
 - CLI 新增 `--markdown-report <path>`。同一次检查可同时保留 JSON 和 Markdown，Markdown 附输入 SHA-256、页码、字体、ToUnicode 规则范围及 Unicode 变化。

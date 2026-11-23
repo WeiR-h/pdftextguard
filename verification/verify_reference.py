@@ -215,6 +215,55 @@ def verify_pdfbox():
     return {"generator": meta["generator"], "cases": result, "verified_changed_rule": rule}
 
 
+def verify_qpdf(baseline, baseline_text):
+    meta = json.loads((FIXTURES / "qpdf.json").read_text(encoding="utf-8"))
+    for name, expected in (meta["sourceSha256"] | meta["fixtureSha256"]).items():
+        assert digest((FIXTURES / name).read_bytes()) == expected
+    cases = json.loads((HERE / "cli-results.json").read_text(encoding="utf-8"))["cases"]
+    changed = next(case for case in cases if case["name"] == "QPDF rewrite of controlled wrong mapping")
+    result = {}
+    for name, source in meta["rewrittenFrom"].items():
+        path = FIXTURES / name
+        raw = path.read_bytes()
+        offset = int(re.search(rb"startxref\s+(\d+)\s+%%EOF\s*$", raw)[1])
+        xref_id = re.match(rb"(\d+) (\d+) obj\b", raw[offset:])
+        reader = PdfReader(path, strict=True)
+        xref = reader.get_object(IndirectObject(int(xref_id[1]), int(xref_id[2]), reader))
+        assert xref["/Type"] == "/XRef" and xref["/Filter"] == "/FlateDecode"
+        assert "/Prev" not in xref and "/XRefStm" not in xref and reader.xref_objStm
+        widths = list(xref["/W"])
+        params = xref["/DecodeParms"]
+        assert params["/Predictor"] == 12 and params["/Columns"] == sum(widths)
+        metrics, text = pdfium_observation(path)
+        source_metrics, source_text = pdfium_observation(FIXTURES / source)
+        assert metrics == source_metrics and text == source_text
+        assert metrics["rgb_sha256"] == baseline["rgb_sha256"]
+        expected = ("Z" + baseline_text[1:]) if name == "qpdf-wrong-unicode.pdf" else baseline_text
+        assert text == expected
+        original = PdfReader(FIXTURES / source, strict=True).pages[0].extract_text()
+        assert reader.pages[0].extract_text() == original
+        result[name] = {**metrics, "predictor": int(params["/Predictor"]),
+                        "xref_field_widths": widths, "indexed_compressed_objects": len(reader.xref_objStm)}
+
+    diagnostic = changed["diagnostic"]
+    for side, name, target in [
+        ("baseline", "pdfkit-0.18.0-300.pdf", b"<0021>"),
+        ("candidate", "qpdf-wrong-unicode.pdf", b"<005a>"),
+    ]:
+        witness = diagnostic[side]
+        facts, cmap = real_export_facts(FIXTURES / name)
+        assert witness["page"] == 1 and witness["operator_offset"] == facts["first_tj_offset"]
+        for field in ("font_object", "cmap_object", "content_object"):
+            assert witness[field] == facts[field]
+        rule = witness["rule"]
+        start, end, at = rule["decoded_offset"], rule["decoded_end"], rule["value_offset"]
+        assert start <= at < at + len(target) <= end
+        assert cmap[start:end].startswith(b"<") and cmap[start:end].endswith(b"]")
+        assert cmap[at:at + len(target)].lower() == target
+    return {"generator": meta["generator"], "cases": result,
+            "verified_changed_rule": diagnostic["candidate"]["rule"]}
+
+
 def main():
     meta = json.loads((FIXTURES / "generator.json").read_text(encoding="utf-8"))
     facts, cmaps, texts = {}, {}, {}
@@ -264,6 +313,7 @@ def main():
         "page_cases": page_results,
         "order_cases": order_results,
         "pdfbox": verify_pdfbox(),
+        "qpdf": verify_qpdf(facts[baseline], texts[baseline]),
     }
     (HERE / "reference-results.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n",

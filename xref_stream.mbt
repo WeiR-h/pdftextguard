@@ -60,20 +60,73 @@ fn read_object_slice(
 }
 
 ///|
+fn xref_png_up(
+  bytes : Bytes,
+  params : @syntax.PdfObject,
+  count : Int32,
+  width : Int32,
+) -> Bytes raise GuardError {
+  if !(field(params, b"Predictor") is Some(PdfInteger(12))) {
+    raise Unsupported("cross-reference stream predictor")
+  }
+  if (field(params, b"Colors") is Some(colors) && !(colors is PdfInteger(1))) ||
+    (
+      field(params, b"BitsPerComponent") is Some(bits) &&
+      !(bits is PdfInteger(8))
+    ) {
+    raise Unsupported("cross-reference stream predictor pixel format")
+  }
+  if structural_integer(params, b"Columns") != width {
+    raise Invalid(
+      "cross-reference predictor columns differ from the entry width",
+    )
+  }
+  // Each validated xref entry adds one filter byte before the field bytes.
+  let stride = width + 1
+  let length = count * stride
+  let rows = inflate_bounded(bytes, length)
+  if rows.length() != length {
+    raise Invalid("cross-reference predictor row length differs from its index")
+  }
+  let data = FixedArray::make(count * width, b'\x00')
+  for i in 0..<count {
+    if rows[i * stride] != b'\x02' {
+      raise Invalid("cross-reference predictor row does not use PNG Up")
+    }
+    let start = i * width
+    for column in 0..<width {
+      let at = start + column
+      let delta = rows[i * stride + 1 + column].to_int()
+      let above = if i == 0 { 0 } else { data[at - width].to_int() }
+      data[at] = ((above + delta) & 255).to_byte()
+    }
+  }
+  Bytes::from_array(data[:])
+}
+
+///|
 fn structural_bytes(
   object : @syntax.PdfObject,
   limit : Int32,
+  xref_shape? : (Int32, Int32),
 ) -> Bytes raise GuardError {
   if !(object is PdfStreamObject(_)) {
     raise Invalid("expected cross-reference or object stream")
   }
-  if field(object, b"DecodeParms") is Some(params) && !(params is PdfNull) {
-    raise Unsupported("structural PDF stream parameters")
-  }
+  let filter = field(object, b"Filter")
   let bytes = object.stream_bytes() catch {
     _ => raise Invalid("cannot read structural PDF stream")
   }
-  match field(object, b"Filter") {
+  if field(object, b"DecodeParms") is Some(params) && !(params is PdfNull) {
+    match (xref_shape, filter) {
+      (Some((count, width)), Some(PdfNameObject(name))) if pdf_name_payload(
+          name,
+        ) ==
+        b"FlateDecode" => return xref_png_up(bytes, params, count, width)
+      _ => raise Unsupported("structural PDF stream parameters")
+    }
+  }
+  match filter {
     None | Some(PdfNull) if bytes.length() <= limit => bytes
     None | Some(PdfNull) =>
       raise Unsupported("structural PDF stream exceeds its size limit")
@@ -118,13 +171,13 @@ fn xref_entries(
     generation > 2 {
     raise Unsupported("cross-reference stream field width")
   }
-  let expected = count * (kind + offset + generation)
-  let data = structural_bytes(object, expected)
+  let row_width = kind + offset + generation
+  let expected = count * row_width
+  let data = structural_bytes(object, expected, xref_shape=(count, row_width))
   if data.length() != expected {
     raise Invalid("cross-reference stream length differs from its index")
   }
   if kind == 1 {
-    let row_width = kind + offset + generation
     for i in 0..<count {
       if data[i * row_width].to_int() > 2 {
         raise Unsupported("unknown cross-reference stream entry type")

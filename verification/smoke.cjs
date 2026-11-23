@@ -72,6 +72,25 @@ for (const mode of ['incremental', 'hybrid', 'size']) {
   check('PDFBox structure control ' + mode, classic, input('pdfbox-' + mode + '-control'), 2,
     reason('unsupported', mode === 'size' ? /count limit/ : /incremental PDF or hybrid/));
 }
+check('QPDF 12.4.1 PNG Up xref rewrite', fixed, input('qpdf-normal'), 0, clean(300));
+check('QPDF rewrite of controlled wrong mapping', fixed, input('qpdf-wrong-unicode'), 1, report => {
+  assert.equal(report.aligned_glyphs, 300);
+  assert.equal(report.compared_glyphs, 300);
+  assert.equal(report.mismatched_occurrences, 1);
+  const [issue] = report.diagnostics;
+  assert.equal(issue.candidate.page, 1);
+  assert.deepEqual(issue.baseline.unicode, ['U+0021']);
+  assert.deepEqual(issue.candidate.unicode, ['U+005A']);
+  assert.ok(issue.candidate.cmap_object.number > 0);
+});
+for (const [mode, message] of [
+  ['columns', /columns differ/],
+  ['length', /row length differs/],
+  ['row', /does not use PNG Up/],
+]) {
+  check('QPDF xref control ' + mode, fixed, input('qpdf-xref-' + mode + '-control'), 2,
+    reason('invalid_input', message));
+}
 check('real PDFKit #1659', fixed, input('pdfkit-0.17.2-300'), 1, report => {
   assert.equal(report.aligned_glyphs, 300);
   assert.equal(report.compared_glyphs, 0);

@@ -1,0 +1,27 @@
+{
+  "generator": "QPDF 12.4.1",
+  "options": [
+    "--deterministic-id",
+    "--object-streams=generate"
+  ],
+  "rewrittenFrom": {
+    "qpdf-normal.pdf": "pdfkit-0.18.0-300.pdf",
+    "qpdf-wrong-unicode.pdf": "wrong-unicode.pdf"
+  },
+  "sourceSha256": {
+    "pdfkit-0.18.0-300.pdf": "ff6e2e3bde5109cd2fc9a8e33f14a3046ef66ccad3255d9cb9ecbc4f1c0da013",
+    "wrong-unicode.pdf": "202d312f973f79ba52baeccc3508131e71351e7fdec2f3ca8978a0bef70e05c6"
+  },
+  "controlledVariants": [
+    "qpdf-xref-columns-control.pdf",
+    "qpdf-xref-length-control.pdf",
+    "qpdf-xref-row-control.pdf"
+  ],
+  "fixtureSha256": {
+    "qpdf-normal.pdf": "40300e7a7b1ba4da384f696e67ac180f26c32a99a8874ffb8a4131f5a75a1420",
+    "qpdf-wrong-unicode.pdf": "d85d3cce5b70c7ac59310e1f51eb049ddeac533e5f8c2284251fe007167f14d8",
+    "qpdf-xref-columns-control.pdf": "eba9aff2377e4313ee4b2edc22638b53ccef82f25ebfbcbe901798ff4f0bf148",
+    "qpdf-xref-length-control.pdf": "2639dc5af297f6e23e61d6c46dac3dea17e9c2c68c0244672f868a1dafbba9c2",
+    "qpdf-xref-row-control.pdf": "bc287e550bd3dde385ef9fdfbe732d8b5a197ccd023295b072696e1739cba85e"
+  }
+}
