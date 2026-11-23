@@ -1,26 +1,26 @@
-# PDFTextGuard v0.0.8
+# PDFTextGuard v0.0.9
 
 在 CI 中比较同一源文档的两次 PDF 导出。页面看起来一样时，复制或搜索的文字仍可能变化。PDFTextGuard 对齐两版实际绘制的字形，比较对应的 ToUnicode 映射，并报告页码、字体对象及具体 CMap 规则。
 
-评审版随 ZIP 提供 90 秒字幕演示。可直接查看问题、真实导出对照和复跑入口。[评审一页纸](REVIEW.md)
+v0.0.8 的评审版随 ZIP 提供 90 秒字幕演示。可直接查看问题、真实导出对照和复跑入口。[评审一页纸](REVIEW.md)
 
 ## 两分钟试用
 
-下载并解压 [v0.0.8 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.8/PDFTextGuard-v0.0.8.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
+下载并解压 [v0.0.9 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.9/PDFTextGuard-v0.0.9.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
 
 在本目录运行。已构建的命令只需 Node.js 22.3 或更新版本，本机验证使用 Node.js 24.13.0。
 
 ```powershell
-node .\dist\pdftextguard-v0.0.8.cjs --version
+node .\dist\pdftextguard-v0.0.9.cjs --version
 
 # 同一内容用不同字体子集绘制。预期 0，300 个字形成功对齐。
-node .\dist\pdftextguard-v0.0.8.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
+node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
 
 # 文件仍能正常显示，但首个字符的复制结果从 ! 变成 Z。预期 1。
-node .\dist\pdftextguard-v0.0.8.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
+node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
 
 # 已确认只有绘制顺序变化时，按唯一位置检查映射。这个例子仍会报告一处回归。
-node .\dist\pdftextguard-v0.0.8.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\draws-reordered-wrong.pdf --json --align-by-position
+node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\draws-reordered-wrong.pdf --json --align-by-position
 ```
 
 CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(baseline : Bytes, candidate : Bytes) -> Report` 和 `check_by_position`。默认要求绘制顺序一致。选择 `--align-by-position` 后，只在所有字形均能按形状和位置唯一配对时继续。JSON 的 `position_aligned_pages` 记录用这种方法重新配对的页数。
@@ -37,7 +37,7 @@ CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(bas
 
 ## 接入 PDF 导出 CI
 
-把门禁步骤接在你的两版导出之后。模板在验证发布包的 SHA-256 后，比较 `baseline.pdf` 和 `candidate.pdf`。退出码 `1` 或 `2` 会阻断任务，JSON 报告在失败时也可下载。[GitHub Actions 模板](examples/pdf-export-gate.yml)
+把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.9` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`，退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的 JSON。[GitHub Actions 模板](examples/pdf-export-gate.yml)
 
 ## 支持范围
 
@@ -62,17 +62,17 @@ CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(bas
 
 见 [CLI 验收回执](verification/cli-results.json)、[PDFium 和 pypdf 独立回执](verification/reference-results.json)及 [PDFKit 问题 #1659](https://github.com/foliojs/pdfkit/issues/1659)。真实双版本样本使用未经修改的 PDFKit 包。重新编号子集和改错映射是用于归因的受控变体。
 
-首版到 `v0.0.5`，48 页共享字体样本的端到端中位耗时从 987.33 ms 降至 279.72 ms。后续每版与 `v0.0.5` 同机交错复测。[性能记录与复跑](PERFORMANCE.md)
+首版到 `v0.0.5`，48 页共享字体样本的端到端中位耗时从 987.33 ms 降至 279.72 ms。v0.0.9 起使用 `v0.0.8` 作为同机交错复测的基线。[性能记录与复跑](PERFORMANCE.md)
 
 ## 安装 MoonBit 库
 
 在你的 MoonBit 项目中添加本版模块，使用 JavaScript 后端运行。
 
 ```sh
-moon add WeiR-h/pdftextguard@0.0.8
+moon add WeiR-h/pdftextguard@0.0.9
 ```
 
-在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.8/)。
+在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.9/)。
 
 ## 从源码构建与复跑
 

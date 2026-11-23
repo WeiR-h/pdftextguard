@@ -1,0 +1,95 @@
+name: Verify the published PDFTextGuard action
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  consumer:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.9' }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        fixture: [subset-reordered, pdfkit-0.17.2-300, encrypted]
+        include:
+          - fixture: subset-reordered
+            code: '0'
+            result: pass
+            step: success
+          - fixture: pdfkit-0.17.2-300
+            code: '1'
+            result: regression
+            step: failure
+          - fixture: encrypted
+            code: '2'
+            result: inconclusive
+            step: failure
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v0.0.9
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare PDFs with Unicode and spaces in their paths
+        shell: python
+        env:
+          FIXTURE: ${{ matrix.fixture }}
+        run: |
+          import os
+          from pathlib import Path
+          import shutil
+          import sys
+
+          sys.path.insert(0, "verification")
+          from fetch_release import fetch
+
+          tag = "v0.0.9"
+          bundle = Path(os.environ["RUNNER_TEMP"]) / "consumer"
+          fetch(tag, bundle)
+          fixtures = bundle / f"PDFTextGuard-{tag}" / "verification/fixtures"
+          exports = Path("PDF 导出")
+          exports.mkdir()
+          shutil.copyfile(fixtures / "pdfkit-0.18.0-300.pdf", exports / "基准 export.pdf")
+          shutil.copyfile(fixtures / (os.environ["FIXTURE"] + ".pdf"), exports / "候选 export.pdf")
+      - name: Invoke the published action by tag
+        id: pdf
+        continue-on-error: true
+        uses: WeiR-h/pdftextguard@v0.0.9
+        with:
+          baseline: "PDF 导出/基准 export.pdf"
+          candidate: "PDF 导出/候选 export.pdf"
+      - name: Verify enforcement and retained outputs
+        shell: python
+        env:
+          REPORT: ${{ steps.pdf.outputs.report-path }}
+          OUTCOME: ${{ steps.pdf.outputs.outcome }}
+          EXIT_CODE: ${{ steps.pdf.outputs.exit-code }}
+          STEP_OUTCOME: ${{ steps.pdf.outcome }}
+          EXPECTED_RESULT: ${{ matrix.result }}
+          EXPECTED_CODE: ${{ matrix.code }}
+          EXPECTED_STEP: ${{ matrix.step }}
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          assert os.environ["OUTCOME"] == os.environ["EXPECTED_RESULT"]
+          assert os.environ["EXIT_CODE"] == os.environ["EXPECTED_CODE"]
+          assert os.environ["STEP_OUTCOME"] == os.environ["EXPECTED_STEP"]
+          output = Path(os.environ["REPORT"])
+          assert output.is_absolute()
+          report = json.loads(output.read_text(encoding="utf-8"))
+          assert report["outcome"] == os.environ["EXPECTED_RESULT"]
+          assert report["exit_code"] == int(os.environ["EXPECTED_CODE"])
+          assert report["tool_version"] == "0.0.9"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.pdf.outputs.report-path != '' }}
+        with:
+          name: report-${{ matrix.os }}-${{ matrix.fixture }}
+          path: ${{ steps.pdf.outputs.report-path }}

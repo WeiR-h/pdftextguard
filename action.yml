@@ -1,0 +1,48 @@
+name: PDFTextGuard
+description: Block PDF export regressions and retain the text-layer comparison report.
+inputs:
+  baseline:
+    description: Path to the baseline PDF, relative to the caller's workspace or absolute.
+    required: true
+  candidate:
+    description: Path to the candidate PDF, relative to the caller's workspace or absolute.
+    required: true
+outputs:
+  report-path:
+    description: Absolute path to the JSON comparison report.
+    value: ${{ steps.compare.outputs.report-path }}
+  outcome:
+    description: pass, regression, or inconclusive.
+    value: ${{ steps.compare.outputs.outcome }}
+  exit-code:
+    description: PDFTextGuard result code (0, 1, or 2).
+    value: ${{ steps.compare.outputs.exit-code }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install the verified release
+      id: install
+      shell: bash
+      env:
+        PDFTEXTGUARD_ACTION_PATH: ${{ github.action_path }}
+      run: python "$PDFTEXTGUARD_ACTION_PATH/verification/install_action.py"
+    - name: Compare the exports and write the report
+      id: compare
+      shell: bash
+      env:
+        PDFTEXTGUARD_ACTION_PATH: ${{ github.action_path }}
+        PDFTEXTGUARD_BUNDLE: ${{ steps.install.outputs.bundle }}
+        PDFTEXTGUARD_BASELINE: ${{ inputs.baseline }}
+        PDFTEXTGUARD_CANDIDATE: ${{ inputs.candidate }}
+      run: node "$PDFTEXTGUARD_ACTION_PATH/verification/action_gate.cjs"
+    - name: Enforce the comparison result
+      shell: bash
+      env:
+        PDFTEXTGUARD_EXIT_CODE: ${{ steps.compare.outputs.exit-code }}
+      run: exit "$PDFTEXTGUARD_EXIT_CODE"

@@ -34,7 +34,7 @@ def main():
     prefix = f"PDFTextGuard-v{version}"
     members = {
         "README.md", "CHANGELOG.md", "LICENSE", "LICENSE-APACHE-2.0", "THIRD_PARTY.md",
-        "moon.mod", "moon.pkg", "cmd/pdftextguard/moon.pkg", cli, "dist/SHA256SUMS",
+        "moon.mod", "moon.pkg", "cmd/pdftextguard/moon.pkg", "action.yml", cli, "dist/SHA256SUMS",
         "verification/requirements.txt", "verification/cli-results.json",
         "verification/reference-results.json", "verification/pdfkit/package.json",
         "verification/pdfkit/package-lock.json", "verification/pdfkit/generate.cjs",
