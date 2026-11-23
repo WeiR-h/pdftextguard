@@ -2,11 +2,13 @@ const { readFileSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-function check(baseline, candidate) {
+function check(baseline, candidate, markdownPath) {
   const manifest = readFileSync(join(__dirname, '../moon.mod'), 'utf8');
   const version = manifest.match(/^version = "([0-9.]+)"$/m)[1];
   const binary = join(__dirname, '../dist', 'pdftextguard-v' + version + '.cjs');
-  const result = spawnSync(process.execPath, [binary, 'check', baseline, candidate, '--json'], {
+  const args = [binary, 'check', baseline, candidate, '--json'];
+  if (markdownPath) args.push('--markdown-report', markdownPath);
+  const result = spawnSync(process.execPath, args, {
     encoding: 'utf8', timeout: 60_000, maxBuffer: 4 * 1024 * 1024,
   });
   if (result.error) throw result.error;

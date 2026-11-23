@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   consumer:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.9' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.10' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
     strategy:
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v0.0.9
+          ref: v0.0.10
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -49,7 +49,7 @@ jobs:
           sys.path.insert(0, "verification")
           from fetch_release import fetch
 
-          tag = "v0.0.9"
+          tag = "v0.0.10"
           bundle = Path(os.environ["RUNNER_TEMP"]) / "consumer"
           fetch(tag, bundle)
           fixtures = bundle / f"PDFTextGuard-{tag}" / "verification/fixtures"
@@ -60,14 +60,16 @@ jobs:
       - name: Invoke the published action by tag
         id: pdf
         continue-on-error: true
-        uses: WeiR-h/pdftextguard@v0.0.9
+        uses: WeiR-h/pdftextguard@v0.0.10
         with:
           baseline: "PDF 导出/基准 export.pdf"
           candidate: "PDF 导出/候选 export.pdf"
+          markdown-report: 'true'
       - name: Verify enforcement and retained outputs
         shell: python
         env:
           REPORT: ${{ steps.pdf.outputs.report-path }}
+          MARKDOWN: ${{ steps.pdf.outputs.markdown-path }}
           OUTCOME: ${{ steps.pdf.outputs.outcome }}
           EXIT_CODE: ${{ steps.pdf.outputs.exit-code }}
           STEP_OUTCOME: ${{ steps.pdf.outcome }}
@@ -77,6 +79,7 @@ jobs:
         run: |
           import json
           import os
+          import hashlib
           from pathlib import Path
 
           assert os.environ["OUTCOME"] == os.environ["EXPECTED_RESULT"]
@@ -87,9 +90,18 @@ jobs:
           report = json.loads(output.read_text(encoding="utf-8"))
           assert report["outcome"] == os.environ["EXPECTED_RESULT"]
           assert report["exit_code"] == int(os.environ["EXPECTED_CODE"])
-          assert report["tool_version"] == "0.0.9"
+          assert report["tool_version"] == "0.0.10"
+          markdown = Path(os.environ["MARKDOWN"])
+          assert markdown.is_absolute() and markdown.parent == output.parent
+          text = markdown.read_text(encoding="utf-8")
+          assert f'**{report["outcome"]}** (exit {report["exit_code"]})' in text
+          for name in ["基准 export.pdf", "候选 export.pdf"]:
+              digest = hashlib.sha256((Path("PDF 导出") / name).read_bytes()).hexdigest()
+              assert digest in text
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.pdf.outputs.report-path != '' }}
         with:
           name: report-${{ matrix.os }}-${{ matrix.fixture }}
-          path: ${{ steps.pdf.outputs.report-path }}
+          path: |
+            ${{ steps.pdf.outputs.report-path }}
+            ${{ steps.pdf.outputs.markdown-path }}

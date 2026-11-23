@@ -44,7 +44,7 @@ extern "js" fn exit_status(code : Int32) -> Unit =
 
 ///|
 fn usage() -> String {
-  "PDFTextGuard v\{@guard.version}\nUsage: pdftextguard check <baseline.pdf> <candidate.pdf> [--json] [--align-by-position]\nUse --align-by-position to compare explicit mappings even if drawing order changed.\nExit: 0 pass, 1 regression, 2 inconclusive or input error."
+  "PDFTextGuard v\{@guard.version}\nUsage: pdftextguard check <baseline.pdf> <candidate.pdf> [--json] [--align-by-position] [--markdown-report <path>]\nUse --align-by-position to compare explicit mappings even if drawing order changed. The Markdown report must be a new file.\nExit: 0 pass, 1 regression, 2 inconclusive or input error."
 }
 
 ///|
@@ -135,14 +135,24 @@ fn main {
   }
   let mut output_json = false
   let mut by_position = false
+  let mut markdown = None
   let mut invalid = args.length() < 3 || args[0] != "check"
   if !invalid {
-    for flag in args[3:] {
-      match flag {
+    let mut index = 3
+    while index < args.length() && !invalid {
+      match args[index] {
         "--json" if !output_json => output_json = true
         "--align-by-position" if !by_position => by_position = true
+        "--markdown-report" if markdown is None &&
+          index + 1 < args.length() &&
+          !args[index + 1].is_empty() &&
+          !args[index + 1].has_prefix("--") => {
+          markdown = Some(args[index + 1])
+          index += 1
+        }
         _ => invalid = true
       }
+      index += 1
     }
   }
   if invalid {
@@ -154,12 +164,17 @@ fn main {
   }
   let baseline = read_file(args[1])
   if !baseline.error().is_empty() {
-    emit(@guard.input_error("baseline", baseline.error()), output_json)
+    finish(@guard.input_error("baseline", baseline.error()), output_json, markdown)
     return
   }
   let candidate = read_file(args[2])
   if !candidate.error().is_empty() {
-    emit(@guard.input_error("candidate", candidate.error()), output_json)
+    finish(
+      @guard.input_error("candidate", candidate.error()),
+      output_json,
+      markdown,
+      baseline~,
+    )
     return
   }
   let report = if by_position {
@@ -167,5 +182,5 @@ fn main {
   } else {
     @guard.check(baseline.bytes(), candidate.bytes())
   }
-  emit(report, output_json)
+  finish(report, output_json, markdown, baseline~, candidate~)
 }

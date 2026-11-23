@@ -1,5 +1,10 @@
 # 更新记录
 
+## v0.0.10 · 2026-11-23
+
+- CLI 新增 `--markdown-report <path>`。同一次检查可同时保留 JSON 和 Markdown，Markdown 附输入 SHA-256、页码、字体、ToUnicode 规则范围及 Unicode 变化。
+- GitHub Action 支持可选的 Markdown 附件，输出 `markdown-path`。目标文件以独占方式创建，已有文件或写入失败会返回退出码 2。
+
 ## v0.0.9 · 2026-11-23
 
 - 新增可复用的 GitHub Action。发布包通过 SHA-256 校验后才会执行。

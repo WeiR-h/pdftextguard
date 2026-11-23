@@ -1,5 +1,5 @@
 ///|
-pub let version : String = "0.0.9"
+pub let version : String = "0.0.10"
 
 ///|
 #derive(@json.ToJson)

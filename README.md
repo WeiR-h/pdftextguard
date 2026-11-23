@@ -1,4 +1,4 @@
-# PDFTextGuard v0.0.9
+# PDFTextGuard v0.0.10
 
 在 CI 中比较同一源文档的两次 PDF 导出。页面看起来一样时，复制或搜索的文字仍可能变化。PDFTextGuard 对齐两版实际绘制的字形，比较对应的 ToUnicode 映射，并报告页码、字体对象及具体 CMap 规则。
 
@@ -6,24 +6,24 @@ v0.0.8 的评审版随 ZIP 提供 90 秒字幕演示。可直接查看问题、�
 
 ## 两分钟试用
 
-下载并解压 [v0.0.9 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.9/PDFTextGuard-v0.0.9.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
+下载并解压 [v0.0.10 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.10/PDFTextGuard-v0.0.10.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
 
 在本目录运行。已构建的命令只需 Node.js 22.3 或更新版本，本机验证使用 Node.js 24.13.0。
 
 ```powershell
-node .\dist\pdftextguard-v0.0.9.cjs --version
+node .\dist\pdftextguard-v0.0.10.cjs --version
 
 # 同一内容用不同字体子集绘制。预期 0，300 个字形成功对齐。
-node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
+node .\dist\pdftextguard-v0.0.10.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\subset-reordered.pdf
 
 # 文件仍能正常显示，但首个字符的复制结果从 ! 变成 Z。预期 1。
-node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
+node .\dist\pdftextguard-v0.0.10.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\wrong-unicode.pdf --json
 
 # 已确认只有绘制顺序变化时，按唯一位置检查映射。这个例子仍会报告一处回归。
-node .\dist\pdftextguard-v0.0.9.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\draws-reordered-wrong.pdf --json --align-by-position
+node .\dist\pdftextguard-v0.0.10.cjs check .\verification\fixtures\pdfkit-0.18.0-300.pdf .\verification\fixtures\draws-reordered-wrong.pdf --json --align-by-position
 ```
 
-CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(baseline : Bytes, candidate : Bytes) -> Report` 和 `check_by_position`。默认要求绘制顺序一致。选择 `--align-by-position` 后，只在所有字形均能按形状和位置唯一配对时继续。JSON 的 `position_aligned_pages` 记录用这种方法重新配对的页数。
+CLI 在本地离线比较两份 PDF。MoonBit 提供 `check(baseline : Bytes, candidate : Bytes) -> Report` 和 `check_by_position`。默认要求绘制顺序一致。选择 `--align-by-position` 后，只在所有字形均能按形状和位置唯一配对时继续。JSON 的 `position_aligned_pages` 记录用这种方法重新配对的页数。
 
 | 退出码 | JSON `outcome` | CI 含义 |
 | --- | --- | --- |
@@ -35,9 +35,15 @@ CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(bas
 
 映射诊断的 `baseline` 和 `candidate` 分别给出页码、绘制操作、码值、CID、GID、字体与 CMap 对象，以及 Unicode 标量和规则位置。对象带编号和代数。`rule.decoded_offset` 至 `rule.decoded_end` 为解压后 CMap 流的半开字节范围。`value_offset` 进一步指向具体值。嵌套表单用 `form_path` 给出每一层 `Do` 的资源名、对象和偏移。`origin_x/y` 保留原 PDF 页坐标，`display_origin_x/y` 在发生归一化时另报相对有效裁切区域左下角的显示坐标。页码从 1 开始，偏移和数组索引从 0 开始。
 
+```powershell
+node .\dist\pdftextguard-v0.0.10.cjs check baseline.pdf candidate.pdf --json --markdown-report "核对报告.md"
+```
+
+这条命令同时输出 JSON 和 Markdown。Markdown 记录实际读入文件的 SHA-256，以及页码、字体和 ToUnicode 对象、解码后规则字节范围、两版 Unicode 值或无法确认的原因。目标应是所在目录已经存在的新文件。目标已存在或写入失败时，输出侧别为 `report` 的 `input_error` 并返回 `2`。
+
 ## 接入 PDF 导出 CI
 
-把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.9` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`，退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的 JSON。[GitHub Actions 模板](examples/pdf-export-gate.yml)
+把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.10` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`。设置 `markdown-report: 'true'` 后，也提供 `markdown-path`。退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的报告。[GitHub Actions 模板](examples/pdf-export-gate.yml)
 
 ## 支持范围
 
@@ -69,10 +75,10 @@ CLI 接收两份本地文件，离线、只读运行。MoonBit 提供 `check(bas
 在你的 MoonBit 项目中添加本版模块，使用 JavaScript 后端运行。
 
 ```sh
-moon add WeiR-h/pdftextguard@0.0.9
+moon add WeiR-h/pdftextguard@0.0.10
 ```
 
-在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.9/)。
+在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.10/)。
 
 ## 从源码构建与复跑
 

@@ -1,0 +1,1674 @@
+{
+  "toolVersion": "0.0.10",
+  "node": "v24.13.0",
+  "artifactSha256": "fde24c3731c5fa2454de8ecc739400afa6995dce71ccf4a299347f0262823b11",
+  "casesPassed": 48,
+  "cases": [
+    {
+      "name": "same ready export",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "real PDFBox compressed save",
+      "exit": 0,
+      "aligned": 38,
+      "compared": 38,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "PDFBox compressed save with controlled wrong mapping",
+      "exit": 1,
+      "aligned": 38,
+      "compared": 38,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 103,
+          "string_offset": 23,
+          "byte_index": 0,
+          "font_resource": "/F1",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0004",
+          "cid": 4,
+          "gid": 2,
+          "origin_x": 72,
+          "origin_y": 720,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 278,
+            "value_offset": 272,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 103,
+          "string_offset": 23,
+          "byte_index": 0,
+          "font_resource": "/F1",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "code": "0004",
+          "cid": 4,
+          "gid": 2,
+          "origin_x": 72,
+          "origin_y": 720,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 287,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "PDFBox structure control incremental",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "incremental PDF or hybrid cross-reference data"
+      }
+    },
+    {
+      "name": "PDFBox structure control hybrid",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "incremental PDF or hybrid cross-reference data"
+      }
+    },
+    {
+      "name": "PDFBox structure control size",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "PDF exceeds the object count limit"
+      }
+    },
+    {
+      "name": "real PDFKit #1659",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "cmap_syntax",
+        "side": "candidate",
+        "message": "declared block count differs from actual entry count",
+        "page": 1,
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266
+        },
+        "cmap": {
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "span": {
+            "operator": "beginbfrange",
+            "decoded_offset": 243,
+            "decoded_end": 257
+          },
+          "declared": 1,
+          "observed": 2
+        }
+      }
+    },
+    {
+      "name": "malformed baseline is inconclusive",
+      "exit": 2,
+      "aligned": 300,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "cmap_syntax",
+        "side": "baseline",
+        "message": "declared block count differs from actual entry count",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266
+        },
+        "cmap": {
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "span": {
+            "operator": "beginbfrange",
+            "decoded_offset": 243,
+            "decoded_end": 257
+          },
+          "declared": 1,
+          "observed": 2
+        }
+      }
+    },
+    {
+      "name": "200 independent glyphs stay below the bug threshold",
+      "exit": 0,
+      "aligned": 200,
+      "compared": 200,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "300 copies of A are one glyph",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "different embedded subset and renumbered glyphs",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "cross-subset Unicode change",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          }
+        }
+      }
+    },
+    {
+      "name": "position differs",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_glyph",
+        "side": "both",
+        "message": "font family, glyph outline, drawing order or position differs at occurrence 1",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 60,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "ambiguous overprint",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "ambiguous_alignment",
+        "side": "both",
+        "message": "overlapping indistinguishable baseline glyphs or crowded origins",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 2017,
+          "string_offset": 2007,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "unused code, CMap object and subset name change",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "multiple streams and inherited page resources",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "PDF literal string and equivalent Tj",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "real CIDToGIDMap stream preserves glyph identity",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "ActualText shadows font mapping",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "marked-content ActualText can override font mappings",
+        "page": 1,
+        "stream": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "decoded_offset": 38
+        }
+      }
+    },
+    {
+      "name": "encrypted input",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "encrypted PDF"
+      }
+    },
+    {
+      "name": "changed display rotation is inconclusive",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_page",
+        "side": "both",
+        "message": "page boxes differ",
+        "page": 1
+      }
+    },
+    {
+      "name": "CMap inheritance does not masquerade as regression",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "cmap_unsupported",
+        "side": "candidate",
+        "message": "ToUnicode CMap inheritance is unsupported",
+        "page": 1,
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266
+        },
+        "cmap": {
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "span": {
+            "operator": "usecmap",
+            "decoded_offset": 11,
+            "decoded_end": 18
+          }
+        }
+      }
+    },
+    {
+      "name": "ToUnicode loss is visible for used characters",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 300,
+      "diagnostic": {
+        "code": "mapping_missing",
+        "side": "candidate",
+        "message": "a used code lost its explicit ToUnicode mapping",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266
+        }
+      }
+    },
+    {
+      "name": "baseline has no reliable mapping",
+      "exit": 2,
+      "aligned": 300,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "baseline_unmapped",
+        "side": "baseline",
+        "message": "baseline has a used code without explicit ToUnicode",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266
+        }
+      }
+    },
+    {
+      "name": "missing input",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "input_error",
+        "side": "candidate",
+        "message": "cannot read input file: ENOENT"
+      }
+    },
+    {
+      "name": "invalid container",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "missing or invalid startxref"
+      }
+    },
+    {
+      "name": "page to nested forms preserves text scope and transform",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "legacy form inherits page resources",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "explicit form scope cannot fall through",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "missing /Font in PDF dictionary",
+        "page": 1,
+        "stream": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "decoded_offset": 203,
+          "form_path": [
+            {
+              "resource": "/Outer",
+              "caller_object": {
+                "number": 15,
+                "generation": 0
+              },
+              "operator_offset": 25,
+              "form_object": {
+                "number": 14,
+                "generation": 0
+              }
+            },
+            {
+              "resource": "/Leaf",
+              "caller_object": {
+                "number": 14,
+                "generation": 0
+              },
+              "operator_offset": 6,
+              "form_object": {
+                "number": 13,
+                "generation": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "recursive forms are inconclusive",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "recursive Form XObject invocation",
+        "page": 1,
+        "stream": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "decoded_offset": 6,
+          "form_path": [
+            {
+              "resource": "/Loop",
+              "caller_object": {
+                "number": 14,
+                "generation": 0
+              },
+              "operator_offset": 6,
+              "form_object": {
+                "number": 13,
+                "generation": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "nested form cross-subset drift",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          },
+          "form_path": [
+            {
+              "resource": "/Outer",
+              "caller_object": {
+                "number": 15,
+                "generation": 0
+              },
+              "operator_offset": 25,
+              "form_object": {
+                "number": 14,
+                "generation": 0
+              }
+            },
+            {
+              "resource": "/Leaf",
+              "caller_object": {
+                "number": 14,
+                "generation": 0
+              },
+              "operator_offset": 6,
+              "form_object": {
+                "number": 13,
+                "generation": 0
+              }
+            }
+          ]
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          },
+          "form_path": [
+            {
+              "resource": "/Outer",
+              "caller_object": {
+                "number": 15,
+                "generation": 0
+              },
+              "operator_offset": 25,
+              "form_object": {
+                "number": 14,
+                "generation": 0
+              }
+            },
+            {
+              "resource": "/ChangedLeaf",
+              "caller_object": {
+                "number": 14,
+                "generation": 0
+              },
+              "operator_offset": 13,
+              "form_object": {
+                "number": 13,
+                "generation": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "rotate 90 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotate 180 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotate 270 and cropped page normalized",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "rotation normalized Unicode regression",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "display_origin_x": 334.947266,
+          "display_origin_y": 512,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 4,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 275,
+          "string_offset": 148,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 734.947266,
+          "origin_y": 564,
+          "display_origin_x": 334.947266,
+          "display_origin_y": 512,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid rotation is rejected",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "page Rotate must be an integer multiple of 90 (found 45)"
+      }
+    },
+    {
+      "name": "equal non-default UserUnit is supported",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "changed UserUnit remains inconclusive across readers",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_page",
+        "side": "both",
+        "message": "page UserUnit differs",
+        "page": 1
+      }
+    },
+    {
+      "name": "zero UserUnit is rejected",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "invalid_input",
+        "side": "candidate",
+        "message": "UserUnit must be positive",
+        "page": 1
+      }
+    },
+    {
+      "name": "reordered draws are inconclusive by default",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_glyph",
+        "side": "both",
+        "message": "font family, glyph outline, drawing order or position differs at occurrence 1",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "001E",
+          "cid": 30,
+          "gid": 30,
+          "origin_x": 48,
+          "origin_y": 446.947266,
+          "unicode": [
+            "U+016B"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 483,
+            "range_index": 30
+          }
+        }
+      }
+    },
+    {
+      "name": "opt-in reordering uses a unique mapping for all characters",
+      "exit": 0,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "opt-in reordering preserves the changed ToUnicode witness",
+      "exit": 1,
+      "aligned": 300,
+      "compared": 300,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 1940,
+          "string_offset": 1814,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "012C",
+          "cid": 300,
+          "gid": 300,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+005A"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 2066,
+            "decoded_end": 2396,
+            "value_offset": 2389,
+            "range_index": 44
+          }
+        }
+      }
+    },
+    {
+      "name": "opt-in does not bypass different positions",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unaligned_glyph",
+        "side": "both",
+        "message": "no compatible glyph at the baseline origin",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 5,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "TJ",
+          "operator_offset": 203,
+          "string_offset": 77,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 8,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 16,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 17,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48,
+          "origin_y": 734.947266,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "near but unique positional anchors",
+      "exit": 0,
+      "aligned": 2,
+      "compared": 2,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "cross-file tolerance ambiguity is inconclusive",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "ambiguous_alignment",
+        "side": "both",
+        "message": "more than one compatible glyph at the baseline origin",
+        "page": 1,
+        "baseline": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 86,
+          "string_offset": 79,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48.016,
+          "origin_y": 720,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        },
+        "candidate": {
+          "page": 1,
+          "content_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 90,
+          "string_offset": 83,
+          "byte_index": 0,
+          "font_resource": "/F2",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "code": "0001",
+          "cid": 1,
+          "gid": 1,
+          "origin_x": 48.024,
+          "origin_y": 720,
+          "unicode": [
+            "U+0021"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 258,
+            "decoded_end": 2065,
+            "value_offset": 280,
+            "range_index": 1
+          }
+        }
+      }
+    }
+  ]
+}

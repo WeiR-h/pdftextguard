@@ -12,12 +12,15 @@ jobs:
           persist-credentials: false
       - name: Compare the two exports
         id: pdf
-        uses: WeiR-h/pdftextguard@v0.0.9
+        uses: WeiR-h/pdftextguard@v0.0.10
         with:
           baseline: baseline.pdf
           candidate: candidate.pdf
+          markdown-report: 'true' # optional
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.pdf.outputs.report-path != '' }}
         with:
           name: pdftextguard-report
-          path: ${{ steps.pdf.outputs.report-path }}
+          path: |
+            ${{ steps.pdf.outputs.report-path }}
+            ${{ steps.pdf.outputs.markdown-path }}

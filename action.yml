@@ -7,6 +7,10 @@ inputs:
   candidate:
     description: Path to the candidate PDF, relative to the caller's workspace or absolute.
     required: true
+  markdown-report:
+    description: Set to 'true' to generate a Markdown report alongside the JSON.
+    required: false
+    default: 'false'
 outputs:
   report-path:
     description: Absolute path to the JSON comparison report.
@@ -17,6 +21,9 @@ outputs:
   exit-code:
     description: PDFTextGuard result code (0, 1, or 2).
     value: ${{ steps.compare.outputs.exit-code }}
+  markdown-path:
+    description: Absolute path to the Markdown report when generated.
+    value: ${{ steps.compare.outputs.markdown-path }}
 runs:
   using: composite
   steps:
@@ -40,6 +47,7 @@ runs:
         PDFTEXTGUARD_BUNDLE: ${{ steps.install.outputs.bundle }}
         PDFTEXTGUARD_BASELINE: ${{ inputs.baseline }}
         PDFTEXTGUARD_CANDIDATE: ${{ inputs.candidate }}
+        PDFTEXTGUARD_MARKDOWN: ${{ inputs.markdown-report }}
       run: node "$PDFTEXTGUARD_ACTION_PATH/verification/action_gate.cjs"
     - name: Enforce the comparison result
       shell: bash
