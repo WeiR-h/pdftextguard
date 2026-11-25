@@ -1,0 +1,107 @@
+{
+  "metric": "end-to-end CLI wall time including Node startup and input I/O",
+  "repetitions": 9,
+  "node": "v24.13.0",
+  "platform": "win32",
+  "cpu": "AMD Ryzen 7 5800H with Radeon Graphics         ",
+  "workloads": [
+    {
+      "name": "one-page",
+      "pages": 1,
+      "glyph_occurrences": 300,
+      "baseline": "verification/fixtures/pdfkit-0.18.0-300.pdf",
+      "candidate": "verification/fixtures/subset-reordered.pdf",
+      "input_sha256": [
+        "ff6e2e3bde5109cd2fc9a8e33f14a3046ef66ccad3255d9cb9ecbc4f1c0da013",
+        "bd4e22e22d79e4165c6995dbd1597b1cccd728ab8d45957ca7a526b21f168701"
+      ],
+      "measurements": [
+        {
+          "version": "v0.0.8",
+          "binary_sha256": "bbb8a9f42ba12a5a7a0fa9daa5552908313776653824973f14df3faf6cb421c3",
+          "samples_ms": [
+            181.28,
+            170.96,
+            173.82,
+            177.24,
+            184.55,
+            175.41,
+            182.08,
+            175.51,
+            179.17
+          ],
+          "median_ms": 177.24,
+          "min_ms": 170.96,
+          "max_ms": 184.55
+        },
+        {
+          "version": "v0.0.11",
+          "binary_sha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
+          "samples_ms": [
+            173.11,
+            198.97,
+            183.87,
+            179.2,
+            194.43,
+            185.9,
+            176.47,
+            180.38,
+            178.18
+          ],
+          "median_ms": 180.38,
+          "min_ms": 173.11,
+          "max_ms": 198.97
+        }
+      ]
+    },
+    {
+      "name": "48-pages-shared-font",
+      "pages": 48,
+      "glyph_occurrences": 14400,
+      "baseline": ".work/benchmark/48-baseline.pdf",
+      "candidate": ".work/benchmark/48-candidate.pdf",
+      "input_sha256": [
+        "43cced8beafe8749b34e9a27cb0a03f8572f6221cf121a94d48309165dfaa338",
+        "02937d64f0d01f561dec729c9d5c2018629ddc0725ed0c592cfd66026e249c37"
+      ],
+      "measurements": [
+        {
+          "version": "v0.0.8",
+          "binary_sha256": "bbb8a9f42ba12a5a7a0fa9daa5552908313776653824973f14df3faf6cb421c3",
+          "samples_ms": [
+            292.83,
+            274.92,
+            272.42,
+            307.36,
+            303.68,
+            302.26,
+            328.08,
+            295.2,
+            284.51
+          ],
+          "median_ms": 295.2,
+          "min_ms": 272.42,
+          "max_ms": 328.08
+        },
+        {
+          "version": "v0.0.11",
+          "binary_sha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
+          "samples_ms": [
+            265.2,
+            289.38,
+            265.77,
+            282.4,
+            301.25,
+            294.12,
+            297.82,
+            300.74,
+            295.72
+          ],
+          "median_ms": 294.12,
+          "min_ms": 265.2,
+          "max_ms": 301.25
+        }
+      ]
+    }
+  ]
+}

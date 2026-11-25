@@ -1,0 +1,35 @@
+{
+  "toolVersion": "0.0.12",
+  "artifactSha256": "9bd3cd3642d08f8345b6cb8001c86413e2cec5b1abd1bf8bc8a25b6fd149deab",
+  "moonVersion": "0.1.20261104",
+  "mooncVersion": "v0.10.20+65efd5b93",
+  "cliChecks": 53,
+  "moonbitTests": "passed",
+  "markdownChecks": "passed",
+  "checksumRejection": "passed",
+  "independentPdfChecks": "passed",
+  "moonbitSourceConsumerCases": [
+    {
+      "candidate": "subset-reordered.pdf",
+      "exit_code": 0,
+      "outcome": "pass"
+    },
+    {
+      "candidate": "pdfkit-0.17.2-300.pdf",
+      "exit_code": 1,
+      "outcome": "regression"
+    },
+    {
+      "candidate": "qpdf-wrong-unicode.pdf",
+      "exit_code": 1,
+      "outcome": "regression"
+    },
+    {
+      "candidate": "encrypted.pdf",
+      "exit_code": 2,
+      "outcome": "inconclusive"
+    }
+  ],
+  "performanceBaseline": "v0.0.11",
+  "performanceLimitPercent": 10
+}

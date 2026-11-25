@@ -1,12 +1,12 @@
-# PDFTextGuard v0.0.11
+# PDFTextGuard v0.0.12
 
 在 CI 中比较同一源文档的两次 PDF 导出。页面看起来一样时，复制或搜索的文字仍可能变化。PDFTextGuard 对齐两版实际绘制的字形，比较对应的 ToUnicode 映射，并报告页码、字体对象及具体 CMap 规则。
 
-v0.0.8 的评审版随 ZIP 提供 90 秒字幕演示。可直接查看问题、真实导出对照和复跑入口。[评审一页纸](REVIEW.md)
+评审一页纸汇总本版下载、真实导出对照、错误定位和 MoonBit 复跑步骤。[评审一页纸](REVIEW.md)
 
 ## 两分钟试用
 
-下载并解压 [v0.0.11 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.11/PDFTextGuard-v0.0.11.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
+下载并解压 [v0.0.12 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.12/PDFTextGuard-v0.0.11.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
 
 在本目录运行。已构建的命令只需 Node.js 22.3 或更新版本，本机验证使用 Node.js 24.13.0。
 
@@ -43,7 +43,7 @@ node .\dist\pdftextguard-v0.0.11.cjs check baseline.pdf candidate.pdf --json --m
 
 ## 接入 PDF 导出 CI
 
-把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.11` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`。设置 `markdown-report: 'true'` 后，也提供 `markdown-path`。退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的报告。[GitHub Actions 模板](examples/pdf-export-gate.yml)
+把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.12` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`。设置 `markdown-report: 'true'` 后，也提供 `markdown-path`。退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的报告。[GitHub Actions 模板](examples/pdf-export-gate.yml)
 
 ## 支持范围
 
@@ -69,17 +69,17 @@ node .\dist\pdftextguard-v0.0.11.cjs check baseline.pdf candidate.pdf --json --m
 
 见 [CLI 验收回执](verification/cli-results.json)、[PDFium 和 pypdf 独立回执](verification/reference-results.json)及 [PDFKit 问题 #1659](https://github.com/foliojs/pdfkit/issues/1659)。真实双版本样本使用未经修改的 PDFKit 包。重新编号子集和改错映射是用于归因的受控变体。
 
-首版到 `v0.0.5`，48 页共享字体样本的端到端中位耗时从 987.33 ms 降至 279.72 ms。v0.0.9 起使用 `v0.0.8` 作为同机交错复测的基线。[性能记录与复跑](PERFORMANCE.md)
+首版到 `v0.0.5`，48 页共享字体样本的端到端中位耗时从 987.33 ms 降至 279.72 ms。本版以 `v0.0.11` 为基线，核对单页和 48 页样本的中位耗时。[性能记录与复跑](PERFORMANCE.md)
 
 ## 安装 MoonBit 库
 
 在你的 MoonBit 项目中添加本版模块，使用 JavaScript 后端运行。
 
 ```sh
-moon add WeiR-h/pdftextguard@0.0.11
+moon add WeiR-h/pdftextguard@0.0.12
 ```
 
-在需要调用检查器的包中导入 `WeiR-h/pdftextguard`。见 [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.11/)。
+在 MoonBit 中直接调用 `check` 即可获取结构化报告。独立示例从 Mooncakes 安装本版，并用四份真实或受控候选 PDF 展示三种返回结果。[可运行的 MoonBit 示例](examples/moonbit-consumer/README.md) · [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.12/)
 
 ## 从源码构建与复跑
 
@@ -103,6 +103,13 @@ python .\verification\verify_reference.py
 
 如需重建随仓库提供的 QPDF 样本，运行 `python verification/qpdf/generate_fixtures.py <QPDF-12.4.1-可执行文件路径>`。正常样本和错映射样本都由 QPDF 转存。其中错映射来自预先构造的输入 PDF。[QPDF 12.4.1](https://github.com/qpdf/qpdf/releases/tag/v12.4.1) · [样本来源与散列](verification/fixtures/qpdf.json)
 
-版本从 `v0.0.1` 开始，后续按 `v0.0.x` 递增。更新 `moon.mod`、`model.mbt` 和 [CHANGELOG](CHANGELOG.md) 后重新构建。打包前用 `python .\scripts\package_release.py` 对账测试回执和可执行文件散列。
+准备发行版时，同步模块、CLI、独立示例和更新记录的版本。安装验证工具后运行以下命令。它执行源码构建、MoonBit 测试、CLI 和库示例复跑、独立 PDF 核对及两组性能测试，再打包绑定相同 SHA-256 的证据。
+
+```powershell
+python -m pip install -r verification/requirements.txt
+python scripts/verify_release.py
+```
+
+工具链未在 PATH 时可加 `--moon <moon 可执行文件路径>`，依赖源包和基线 CLI 均已缓存时可加 `--offline`。[版本更新记录](CHANGELOG.md) · [本版验证回执](verification/acceptance-results.json)
 
 查看 [第三方组件及许可](THIRD_PARTY.md)。

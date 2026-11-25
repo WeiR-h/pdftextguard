@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   consumer:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.11' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.12' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
     strategy:
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v0.0.11
+          ref: v0.0.12
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -49,7 +49,7 @@ jobs:
           sys.path.insert(0, "verification")
           from fetch_release import fetch
 
-          tag = "v0.0.11"
+          tag = "v0.0.12"
           bundle = Path(os.environ["RUNNER_TEMP"]) / "consumer"
           fetch(tag, bundle)
           fixtures = bundle / f"PDFTextGuard-{tag}" / "verification/fixtures"
@@ -60,7 +60,7 @@ jobs:
       - name: Invoke the published action by tag
         id: pdf
         continue-on-error: true
-        uses: WeiR-h/pdftextguard@v0.0.11
+        uses: WeiR-h/pdftextguard@v0.0.12
         with:
           baseline: "PDF 导出/基准 export.pdf"
           candidate: "PDF 导出/候选 export.pdf"
@@ -90,7 +90,7 @@ jobs:
           report = json.loads(output.read_text(encoding="utf-8"))
           assert report["outcome"] == os.environ["EXPECTED_RESULT"]
           assert report["exit_code"] == int(os.environ["EXPECTED_CODE"])
-          assert report["tool_version"] == "0.0.11"
+          assert report["tool_version"] == "0.0.12"
           markdown = Path(os.environ["MARKDOWN"])
           assert markdown.is_absolute() and markdown.parent == output.parent
           text = markdown.read_text(encoding="utf-8")

@@ -15,9 +15,12 @@ def main():
     proof = json.loads((ROOT / "verification/cli-results.json").read_text(encoding="utf-8"))
     independent = json.loads((ROOT / "verification/reference-results.json").read_text(encoding="utf-8"))
     digest = sha256((ROOT / cli).read_bytes()).hexdigest()
+    acceptance = json.loads((ROOT / "verification/acceptance-results.json").read_text(encoding="utf-8"))
     if (proof["toolVersion"] != version or proof["artifactSha256"] != digest or
             independent["toolVersion"] != version or independent["artifactSha256"] != digest or
-            not independent["all_assertions_passed"]):
+            not independent["all_assertions_passed"] or
+            acceptance["toolVersion"] != version or acceptance["artifactSha256"] != digest or
+            acceptance["cliChecks"] != proof["casesPassed"]):
         raise ValueError("Build and verify the exact artifact before packaging.")
     benchmark_file = ROOT / "verification" / "benchmark-results.json"
     if benchmark_file.exists():
@@ -37,6 +40,7 @@ def main():
         "moon.mod", "moon.pkg", "cmd/pdftextguard/moon.pkg", "action.yml", cli, "dist/SHA256SUMS",
         "verification/requirements.txt", "verification/cli-results.json",
         "verification/reference-results.json", "verification/pdfkit/package.json",
+        "verification/acceptance-results.json",
         "verification/pdfkit/package-lock.json", "verification/pdfkit/generate.cjs",
         "verification/assets/LiberationSans-Regular.ttf", "verification/assets/LICENSE_LIBERATION",
     }
@@ -46,7 +50,9 @@ def main():
                     "verification/fixtures/*.pdf", "verification/fixtures/generator.json",
                     "verification/fixtures/source-300.txt", "verification/history/*.json",
                     "verification/benchmark-results.json", "PERFORMANCE.md",
-                    "examples/*.yml", "verification/pdfbox/*.java", "verification/pdfbox/*.py",
+                    "examples/*.yml", "examples/moonbit-consumer/README.md",
+                    "examples/moonbit-consumer/moon.mod", "examples/moonbit-consumer/moon.pkg",
+                    "examples/moonbit-consumer/main.mbt", "verification/pdfbox/*.java", "verification/pdfbox/*.py",
                     "verification/pdfbox/*.md", "verification/fixtures/pdfbox.json",
                     "verification/qpdf/*.py", "verification/fixtures/qpdf.json",
                     "REVIEW.md", f"dist/PDFTextGuard-v{version}-demo.mp4"):
