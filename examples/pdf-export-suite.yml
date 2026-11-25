@@ -1,0 +1,23 @@
+# Place this job after your exporter has produced the PDF pairs in your manifest.
+name: Compare a PDF export suite
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Compare PDF exports from the manifest
+        id: pdf
+        uses: WeiR-h/pdftextguard@v0.0.13
+        with:
+          pairs-file: examples/fixture-pairs.json
+          markdown-report: 'true'
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.pdf.outputs.report-dir != '' }}
+        with:
+          name: pdftextguard-suite
+          path: ${{ steps.pdf.outputs.report-dir }}

@@ -44,7 +44,11 @@ def build_example(moon, work, consumer, registry):
         env["MOON_WORK"] = str(workspace)
         command.append("--frozen")
     subprocess.run([*command, "."], cwd=consumer, env=env, check=True)
-    return target / "js/release/build/local/pdftextguard-consumer/pdftextguard-consumer.js"
+    # A registry build puts the executable at a different level than a workspace build.
+    artifacts = list((target / "js/release/build").rglob("pdftextguard-consumer.js"))
+    if len(artifacts) != 1:
+        raise ValueError(f"Expected one MoonBit consumer executable, found {len(artifacts)}")
+    return artifacts[0]
 
 
 def run_report(command, expected_code):

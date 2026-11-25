@@ -36,6 +36,9 @@ jobs:
           if test -f "$bundle/verification/markdown_test.cjs"; then
             node "$bundle/verification/markdown_test.cjs"
           fi
+          if test -f "$bundle/verification/suite_test.cjs"; then
+            node "$bundle/verification/suite_test.cjs"
+          fi
       - name: Check PDF export gate outcomes
         run: |
           bundle="$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG"

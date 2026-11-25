@@ -3,17 +3,20 @@ description: Block PDF export regressions and retain the text-layer comparison r
 inputs:
   baseline:
     description: Path to the baseline PDF, relative to the caller's workspace or absolute.
-    required: true
+    required: false
   candidate:
     description: Path to the candidate PDF, relative to the caller's workspace or absolute.
-    required: true
+    required: false
+  pairs-file:
+    description: Path to the JSON pairs manifest. Use in place of baseline and candidate.
+    required: false
   markdown-report:
     description: Set to 'true' to generate a Markdown report alongside the JSON.
     required: false
     default: 'false'
 outputs:
   report-path:
-    description: Absolute path to the JSON comparison report.
+    description: Absolute path to the JSON comparison report or suite summary.
     value: ${{ steps.compare.outputs.report-path }}
   outcome:
     description: pass, regression, or inconclusive.
@@ -24,6 +27,9 @@ outputs:
   markdown-path:
     description: Absolute path to the Markdown report when generated.
     value: ${{ steps.compare.outputs.markdown-path }}
+  report-dir:
+    description: Absolute path to the directory of suite reports when using pairs-file.
+    value: ${{ steps.compare.outputs.report-dir }}
 runs:
   using: composite
   steps:
@@ -47,6 +53,7 @@ runs:
         PDFTEXTGUARD_BUNDLE: ${{ steps.install.outputs.bundle }}
         PDFTEXTGUARD_BASELINE: ${{ inputs.baseline }}
         PDFTEXTGUARD_CANDIDATE: ${{ inputs.candidate }}
+        PDFTEXTGUARD_PAIRS: ${{ inputs.pairs-file }}
         PDFTEXTGUARD_MARKDOWN: ${{ inputs.markdown-report }}
       run: node "$PDFTEXTGUARD_ACTION_PATH/verification/action_gate.cjs"
     - name: Enforce the comparison result

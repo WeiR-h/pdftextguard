@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   consumer:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.12' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.0.13' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
     strategy:
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v0.0.12
+          ref: v0.0.13
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -49,7 +49,7 @@ jobs:
           sys.path.insert(0, "verification")
           from fetch_release import fetch
 
-          tag = "v0.0.12"
+          tag = "v0.0.13"
           bundle = Path(os.environ["RUNNER_TEMP"]) / "consumer"
           fetch(tag, bundle)
           fixtures = bundle / f"PDFTextGuard-{tag}" / "verification/fixtures"
@@ -60,7 +60,7 @@ jobs:
       - name: Invoke the published action by tag
         id: pdf
         continue-on-error: true
-        uses: WeiR-h/pdftextguard@v0.0.12
+        uses: WeiR-h/pdftextguard@v0.0.13
         with:
           baseline: "PDF 导出/基准 export.pdf"
           candidate: "PDF 导出/候选 export.pdf"
@@ -90,7 +90,7 @@ jobs:
           report = json.loads(output.read_text(encoding="utf-8"))
           assert report["outcome"] == os.environ["EXPECTED_RESULT"]
           assert report["exit_code"] == int(os.environ["EXPECTED_CODE"])
-          assert report["tool_version"] == "0.0.12"
+          assert report["tool_version"] == "0.0.13"
           markdown = Path(os.environ["MARKDOWN"])
           assert markdown.is_absolute() and markdown.parent == output.parent
           text = markdown.read_text(encoding="utf-8")
@@ -105,3 +105,69 @@ jobs:
           path: |
             ${{ steps.pdf.outputs.report-path }}
             ${{ steps.pdf.outputs.markdown-path }}
+      - name: Prepare a mixed PDF suite
+        if: matrix.fixture == 'subset-reordered'
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+          import shutil
+
+          fixtures = Path(os.environ["RUNNER_TEMP"]) / "consumer/PDFTextGuard-v0.0.13/verification/fixtures"
+          exports = Path("PDF 导出")
+          names = [
+              ("回归 export.pdf", "qpdf-wrong-unicode.pdf"),
+              ("加密 export.pdf", "encrypted.pdf"),
+              ("候选 export.pdf", None),
+          ]
+          for name, fixture in names:
+              if fixture:
+                  shutil.copyfile(fixtures / fixture, exports / name)
+          pairs = [{"id": name, "baseline": "基准 export.pdf", "candidate": name} for name, _ in names]
+          (exports / "批量 清单.json").write_text(
+              json.dumps({"schema_version": 1, "pairs": pairs}, ensure_ascii=False), encoding="utf-8"
+          )
+      - name: Invoke the published batch action
+        if: matrix.fixture == 'subset-reordered'
+        id: batch
+        continue-on-error: true
+        uses: WeiR-h/pdftextguard@v0.0.13
+        with:
+          pairs-file: "PDF 导出/批量 清单.json"
+          markdown-report: 'true'
+      - name: Verify batch enforcement and every saved report
+        if: matrix.fixture == 'subset-reordered'
+        shell: python
+        env:
+          REPORT_DIR: ${{ steps.batch.outputs.report-dir }}
+          REPORT: ${{ steps.batch.outputs.report-path }}
+          MARKDOWN: ${{ steps.batch.outputs.markdown-path }}
+          OUTCOME: ${{ steps.batch.outputs.outcome }}
+          EXIT_CODE: ${{ steps.batch.outputs.exit-code }}
+          STEP_OUTCOME: ${{ steps.batch.outcome }}
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          assert os.environ["STEP_OUTCOME"] == "failure"
+          assert os.environ["EXIT_CODE"] == "2" and os.environ["OUTCOME"] == "inconclusive"
+          directory = Path(os.environ["REPORT_DIR"])
+          report = Path(os.environ["REPORT"])
+          markdown = Path(os.environ["MARKDOWN"])
+          assert directory.is_absolute() and report.parent == markdown.parent == directory
+          summary = json.loads(report.read_text(encoding="utf-8"))
+          assert summary["tool_version"] == "0.0.13"
+          assert summary["exit_code"] == 2 and summary["outcome"] == "inconclusive"
+          assert [pair["exit_code"] for pair in summary["pairs"]] == [1, 2, 0]
+          for pair in summary["pairs"]:
+              saved = json.loads((directory / pair["report_path"]).read_text(encoding="utf-8"))
+              assert saved["exit_code"] == pair["exit_code"]
+              assert "SHA-256" in (directory / pair["markdown_path"]).read_text(encoding="utf-8")
+          assert "inconclusive" in markdown.read_text(encoding="utf-8")
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.batch.outputs.report-dir != '' }}
+        with:
+          name: report-batch-${{ matrix.os }}
+          path: ${{ steps.batch.outputs.report-dir }}

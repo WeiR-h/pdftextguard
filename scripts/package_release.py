@@ -20,7 +20,7 @@ def main():
             independent["toolVersion"] != version or independent["artifactSha256"] != digest or
             not independent["all_assertions_passed"] or
             acceptance["toolVersion"] != version or acceptance["artifactSha256"] != digest or
-            acceptance["cliChecks"] != proof["casesPassed"]):
+            acceptance["cliChecks"] != proof["casesPassed"] or acceptance["batchChecks"] != "passed"):
         raise ValueError("Build and verify the exact artifact before packaging.")
     benchmark_file = ROOT / "verification" / "benchmark-results.json"
     if benchmark_file.exists():
@@ -50,7 +50,7 @@ def main():
                     "verification/fixtures/*.pdf", "verification/fixtures/generator.json",
                     "verification/fixtures/source-300.txt", "verification/history/*.json",
                     "verification/benchmark-results.json", "PERFORMANCE.md",
-                    "examples/*.yml", "examples/moonbit-consumer/README.md",
+                    "examples/*.yml", "examples/*.json", "examples/moonbit-consumer/README.md",
                     "examples/moonbit-consumer/moon.mod", "examples/moonbit-consumer/moon.pkg",
                     "examples/moonbit-consumer/main.mbt", "verification/pdfbox/*.java", "verification/pdfbox/*.py",
                     "verification/pdfbox/*.md", "verification/fixtures/pdfbox.json",

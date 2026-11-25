@@ -1,0 +1,107 @@
+{
+  "metric": "end-to-end CLI wall time including Node startup and input I/O",
+  "repetitions": 9,
+  "node": "v24.13.0",
+  "platform": "win32",
+  "cpu": "AMD Ryzen 7 5800H with Radeon Graphics         ",
+  "workloads": [
+    {
+      "name": "one-page",
+      "pages": 1,
+      "glyph_occurrences": 300,
+      "baseline": "verification/fixtures/pdfkit-0.18.0-300.pdf",
+      "candidate": "verification/fixtures/subset-reordered.pdf",
+      "input_sha256": [
+        "ff6e2e3bde5109cd2fc9a8e33f14a3046ef66ccad3255d9cb9ecbc4f1c0da013",
+        "bd4e22e22d79e4165c6995dbd1597b1cccd728ab8d45957ca7a526b21f168701"
+      ],
+      "measurements": [
+        {
+          "version": "v0.0.11",
+          "binary_sha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
+          "samples_ms": [
+            175.41,
+            176.71,
+            178.78,
+            193.74,
+            192.02,
+            202.13,
+            189.75,
+            199.57,
+            226.52
+          ],
+          "median_ms": 192.02,
+          "min_ms": 175.41,
+          "max_ms": 226.52
+        },
+        {
+          "version": "v0.0.12",
+          "binary_sha256": "9bd3cd3642d08f8345b6cb8001c86413e2cec5b1abd1bf8bc8a25b6fd149deab",
+          "samples_ms": [
+            174.91,
+            182.73,
+            202.61,
+            267.14,
+            215.69,
+            219.62,
+            196.26,
+            199.77,
+            202.51
+          ],
+          "median_ms": 202.51,
+          "min_ms": 174.91,
+          "max_ms": 267.14
+        }
+      ]
+    },
+    {
+      "name": "48-pages-shared-font",
+      "pages": 48,
+      "glyph_occurrences": 14400,
+      "baseline": ".work/benchmark/48-baseline.pdf",
+      "candidate": ".work/benchmark/48-candidate.pdf",
+      "input_sha256": [
+        "43cced8beafe8749b34e9a27cb0a03f8572f6221cf121a94d48309165dfaa338",
+        "02937d64f0d01f561dec729c9d5c2018629ddc0725ed0c592cfd66026e249c37"
+      ],
+      "measurements": [
+        {
+          "version": "v0.0.11",
+          "binary_sha256": "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55",
+          "samples_ms": [
+            322.42,
+            272.82,
+            326.91,
+            324.49,
+            313.72,
+            428.04,
+            326.69,
+            352.01,
+            371.23
+          ],
+          "median_ms": 326.69,
+          "min_ms": 272.82,
+          "max_ms": 428.04
+        },
+        {
+          "version": "v0.0.12",
+          "binary_sha256": "9bd3cd3642d08f8345b6cb8001c86413e2cec5b1abd1bf8bc8a25b6fd149deab",
+          "samples_ms": [
+            309.7,
+            308.99,
+            324.13,
+            314.36,
+            348.04,
+            321.09,
+            335.69,
+            353.13,
+            428.91
+          ],
+          "median_ms": 324.13,
+          "min_ms": 308.99,
+          "max_ms": 428.91
+        }
+      ]
+    }
+  ]
+}

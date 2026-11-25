@@ -1,10 +1,10 @@
-# PDFTextGuard v0.0.12 评审一页纸
+# PDFTextGuard v0.0.13 评审一页纸
 
 **PDF 生成器升级后，页面仍然一样，复制和搜索的字可能已经变了。** PDFTextGuard 面向维护 PDF 导出流程的工程师。它比较同一源文档的两次导出，在 CI 中识别文字层回归并给出可在 PDF 内复核的定位。
 
 ## 两分钟复现
 
-下载并解压 v0.0.12 演示包，用 Node.js 22.3 或更新版本运行 `node verification/demo.cjs`。命令依次展示正常换子集、真实 PDFKit 回归和加密输入，结果为 `0`、`1`、`2`。运行 `node verification/smoke.cjs` 可复跑包括 QPDF 在内的完整样本。[固定演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.12/PDFTextGuard-v0.0.12.zip) · [ZIP 校验值](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.12/SHA256SUMS)
+下载并解压 v0.0.13 演示包，用 Node.js 22.3 或更新版本运行 `node verification/demo.cjs`。命令依次展示正常换子集、真实 PDFKit 回归和加密输入，结果为 `0`、`1`、`2`。运行 `node verification/smoke.cjs` 可复跑包括 QPDF 在内的完整样本。[固定演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/PDFTextGuard-v0.0.12.zip) · [ZIP 校验值](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/SHA256SUMS)
 
 | 对照 | 独立参考 | 门禁证据 |
 | --- | --- | --- |
@@ -20,6 +20,8 @@
 
 MoonBit 负责 PDF 结构检查、字形轮廓与位置配对、CMap 语法和语义比较。匹配时使用实际画出的字形，允许字体子集重新编号。诊断保留页码、码值、字体及 CMap 对象、解压后的字节范围。单次保存的交叉引用流和对象流共用解压预算。加密、增量保存及无法可靠配对时返回 `2`，交给调用方复核。
 
-GitHub Action 提供 JSON 与可选 Markdown，阻断回归和无法确认的结果。MoonBit 独立示例直接调用发布库，比较四组样本并检查报告。[CI 模板](examples/pdf-export-gate.yml) · [公开复跑](https://github.com/WeiR-h/pdftextguard/actions/workflows/release-replay.yml) · [MoonBit 示例](examples/moonbit-consumer/README.md) · [Mooncakes v0.0.12](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.12/)
+GitHub Action 提供 JSON 与可选 Markdown，阻断回归和无法确认的结果。MoonBit 独立示例直接调用发布库，比较四组样本并检查报告。[CI 模板](examples/pdf-export-gate.yml) · [公开复跑](https://github.com/WeiR-h/pdftextguard/actions/workflows/release-replay.yml) · [MoonBit 示例](examples/moonbit-consumer/README.md) · [Mooncakes v0.0.13](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.13/)
+
+批量门禁可在一次 Action 安装后依清单检查多组导出，保留各组证据并汇总放行结果。[批量样例](examples/fixture-pairs.json) · [工作流模板](examples/pdf-export-suite.yml)
 
 AI 辅助实现、生成对照、整理文档及排查测试失败。发布前复跑 CLI、MoonBit 示例及独立阅读器，回执绑定当前可执行文件的散列。[本版验证回执](verification/acceptance-results.json) · [更新记录](CHANGELOG.md) · [性能测量](PERFORMANCE.md) · [样本和依赖许可](THIRD_PARTY.md) · [v0.0.8 历史演示](https://github.com/WeiR-h/pdftextguard/releases/tag/v0.0.8)

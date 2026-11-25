@@ -1,4 +1,4 @@
-# PDFTextGuard v0.0.12
+# PDFTextGuard v0.0.13
 
 在 CI 中比较同一源文档的两次 PDF 导出。页面看起来一样时，复制或搜索的文字仍可能变化。PDFTextGuard 对齐两版实际绘制的字形，比较对应的 ToUnicode 映射，并报告页码、字体对象及具体 CMap 规则。
 
@@ -6,7 +6,7 @@
 
 ## 两分钟试用
 
-下载并解压 [v0.0.12 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.12/PDFTextGuard-v0.0.11.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
+下载并解压 [v0.0.13 演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/PDFTextGuard-v0.0.11.zip)，在解压目录运行 `node verification/demo.cjs`。三组样本依次展示正常换子集、真实 PDFKit 回归和范围外输入。
 
 在本目录运行。已构建的命令只需 Node.js 22.3 或更新版本，本机验证使用 Node.js 24.13.0。
 
@@ -43,7 +43,30 @@ node .\dist\pdftextguard-v0.0.11.cjs check baseline.pdf candidate.pdf --json --m
 
 ## 接入 PDF 导出 CI
 
-把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.12` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`。设置 `markdown-report: 'true'` 后，也提供 `markdown-path`。退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的报告。[GitHub Actions 模板](examples/pdf-export-gate.yml)
+把门禁步骤接在你的两版导出之后。使用 `WeiR-h/pdftextguard@v0.0.13` 并传入 `baseline` 和 `candidate`。Action 校验同版本发布包的 SHA-256，然后在运行器上比较两份本地文件。它提供 `report-path`、`outcome` 和 `exit-code`。设置 `markdown-report: 'true'` 后，也提供 `markdown-path`。退出码 `1` 或 `2` 会阻断任务，模板仍会上传已生成的报告。[GitHub Actions 模板](examples/pdf-export-gate.yml)
+
+## 批量检查 PDF 导出
+
+发行包内的示例清单包含通过、回归、无法确认各一组。在解压目录运行。
+
+```sh
+node verification/suite.cjs examples/fixture-pairs.json suite-reports --markdown
+```
+
+清单使用 UTF-8 JSON，结构如下。
+
+```json
+{
+  "schema_version": 1,
+  "pairs": [
+    {"id": "invoice", "baseline": "before/invoice.pdf", "candidate": "after/invoice.pdf"}
+  ]
+}
+```
+
+每组 `id` 唯一。相对 PDF 路径从清单所在目录起算，也可使用绝对路径。输出目录须是尚未创建的新路径。检查按清单顺序运行，逐组 JSON 沿用单对报告格式，汇总写入 `summary.json`。加 `--markdown` 可同时生成逐组 `pair-*.md` 和 `summary.md`。有无法确认的输入时返回 `2`，其余情况有回归返回 `1`，全部通过返回 `0`。样例的汇总退出码是 `2`，三个报告都会保存。清单或写入出错时在标准错误中说明原因，汇总 JSON 在全批完成后写出。
+
+在 Action 中用 `pairs-file` 传入清单，作为单对参数 `baseline` 和 `candidate` 的替代。一次安装即可复用同一发行包检查所有 PDF。用 `report-dir` 上传报告目录，`report-path` 指向汇总 JSON，`markdown-path` 在启用 Markdown 时指向汇总 Markdown。[批量 Action 模板](examples/pdf-export-suite.yml) · [可运行样例清单](examples/fixture-pairs.json)
 
 ## 支持范围
 
@@ -76,10 +99,10 @@ node .\dist\pdftextguard-v0.0.11.cjs check baseline.pdf candidate.pdf --json --m
 在你的 MoonBit 项目中添加本版模块，使用 JavaScript 后端运行。
 
 ```sh
-moon add WeiR-h/pdftextguard@0.0.12
+moon add WeiR-h/pdftextguard@0.0.13
 ```
 
-在 MoonBit 中直接调用 `check` 即可获取结构化报告。独立示例从 Mooncakes 安装本版，并用四份真实或受控候选 PDF 展示三种返回结果。[可运行的 MoonBit 示例](examples/moonbit-consumer/README.md) · [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.12/)
+在 MoonBit 中直接调用 `check` 即可获取结构化报告。独立示例从 Mooncakes 安装本版，并用四份真实或受控候选 PDF 展示三种返回结果。[可运行的 MoonBit 示例](examples/moonbit-consumer/README.md) · [Mooncakes API 文档](https://mooncakes.io/docs/WeiR-h/pdftextguard@0.0.13/)
 
 ## 从源码构建与复跑
 

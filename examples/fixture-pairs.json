@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "pairs": [
+    {
+      "id": "font-subset",
+      "baseline": "../verification/fixtures/pdfkit-0.18.0-300.pdf",
+      "candidate": "../verification/fixtures/subset-reordered.pdf"
+    },
+    {
+      "id": "qpdf-regression",
+      "baseline": "../verification/fixtures/pdfkit-0.18.0-300.pdf",
+      "candidate": "../verification/fixtures/qpdf-wrong-unicode.pdf"
+    },
+    {
+      "id": "encrypted-input",
+      "baseline": "../verification/fixtures/pdfkit-0.18.0-300.pdf",
+      "candidate": "../verification/fixtures/encrypted.pdf"
+    }
+  ]
+}
