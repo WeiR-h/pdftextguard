@@ -199,6 +199,28 @@ check('near but unique positional anchors', input('positions-unique-before'),
 check('cross-file tolerance ambiguity is inconclusive', input('positions-tight-before'),
   input('positions-tight-after'), 2, reason('ambiguous_alignment', /more than one compatible/));
 
+const quote = input('quote-classic');
+check('PDFBox mixed-language quote saves', quote, input('quote-compressed'), 0, report => {
+  clean(224)(report);
+  assert.deepEqual(report.page_results.map(page => [page.outcome, page.compared_glyphs]),
+    [['pass', 130], ['pass', 94]]);
+});
+check('quote page two controlled mapping change', quote, input('quote-wrong-unicode'), 1, report => {
+  assert.equal(report.mismatched_occurrences, 1);
+  assert.deepEqual(report.page_results.map(page => [page.outcome, page.mismatched_occurrences]),
+    [['pass', 0], ['regression', 1]]);
+  const [issue] = report.diagnostics;
+  assert.equal(report.diagnostics.length, 1);
+  assert.equal(issue.code, 'mapping_changed');
+  assert.equal(issue.page, 2);
+  assert.deepEqual(issue.baseline.unicode, ['U+5408']);
+  assert.deepEqual(issue.candidate.unicode, ['U+53F0']);
+});
+check('encrypted mixed-language quote', quote, input('quote-encrypted'), 2, report => {
+  reason('unsupported', /encrypted PDF/)(report);
+  assert.deepEqual(report.page_results, []);
+});
+
 const human = run('check', fixed, input('wrong-unicode'));
 assert.equal(human.status, 1);
 assert.match(human.stdout, /REGRESSION/);

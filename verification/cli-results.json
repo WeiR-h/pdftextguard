@@ -1,8 +1,8 @@
 {
-  "toolVersion": "0.0.14",
+  "toolVersion": "0.0.15",
   "node": "v24.13.0",
-  "artifactSha256": "844c1a69af472e62f67710f251b5beff63d0f620889034deb4f9c3d8afbb1214",
-  "casesPassed": 53,
+  "artifactSha256": "5cef1151241240faaa2e934d66c2477fcc6a6712c1e517751b99a28b6b74e00f",
+  "casesPassed": 56,
   "cases": [
     {
       "name": "same ready export",
@@ -1813,6 +1813,127 @@
             "range_index": 1
           }
         }
+      }
+    },
+    {
+      "name": "PDFBox mixed-language quote saves",
+      "exit": 0,
+      "aligned": 224,
+      "compared": 224,
+      "mismatches": 0,
+      "diagnostic": null
+    },
+    {
+      "name": "quote page two controlled mapping change",
+      "exit": 1,
+      "aligned": 224,
+      "compared": 224,
+      "mismatches": 1,
+      "diagnostic": {
+        "code": "mapping_changed",
+        "side": "both",
+        "message": "the same drawn glyph now maps to different Unicode scalars",
+        "page": 2,
+        "baseline": {
+          "page": 2,
+          "content_object": {
+            "number": 9,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 433,
+          "string_offset": 398,
+          "byte_index": 0,
+          "font_resource": "/F1",
+          "font_object": {
+            "number": 12,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 18,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 14,
+            "generation": 0
+          },
+          "code": "166A",
+          "cid": 5738,
+          "gid": 54,
+          "origin_x": 61,
+          "origin_y": 479,
+          "unicode": [
+            "U+5408"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 720,
+            "decoded_end": 740,
+            "value_offset": 734,
+            "range_index": 0
+          }
+        },
+        "candidate": {
+          "page": 2,
+          "content_object": {
+            "number": 18,
+            "generation": 0
+          },
+          "stream_index": 0,
+          "operator": "Tj",
+          "operator_offset": 433,
+          "string_offset": 398,
+          "byte_index": 0,
+          "font_resource": "/F1",
+          "font_object": {
+            "number": 6,
+            "generation": 0
+          },
+          "descendant_object": {
+            "number": 7,
+            "generation": 0
+          },
+          "font_file_object": {
+            "number": 10,
+            "generation": 0
+          },
+          "cmap_object": {
+            "number": 13,
+            "generation": 0
+          },
+          "code": "166A",
+          "cid": 5738,
+          "gid": 54,
+          "origin_x": 61,
+          "origin_y": 479,
+          "unicode": [
+            "U+53F0"
+          ],
+          "rule": {
+            "operator": "bfrange",
+            "decoded_offset": 720,
+            "decoded_end": 740,
+            "value_offset": 734,
+            "range_index": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "encrypted mixed-language quote",
+      "exit": 2,
+      "aligned": 0,
+      "compared": 0,
+      "mismatches": 0,
+      "diagnostic": {
+        "code": "unsupported",
+        "side": "candidate",
+        "message": "encrypted PDF"
       }
     }
   ]

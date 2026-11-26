@@ -14,12 +14,17 @@ import tomllib
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "examples" / "moonbit-consumer"
 FIXTURES = ROOT / "verification" / "fixtures"
-CASES = {
-    "subset-reordered.pdf": (0, "pass"),
-    "pdfkit-0.17.2-300.pdf": (1, "regression"),
-    "qpdf-wrong-unicode.pdf": (1, "regression"),
-    "encrypted.pdf": (2, "inconclusive"),
-}
+ORIGINAL = "pdfkit-0.18.0-300.pdf"
+QUOTE = "quote-classic.pdf"
+CASES = (
+    (ORIGINAL, "subset-reordered.pdf", 0, "pass"),
+    (ORIGINAL, "pdfkit-0.17.2-300.pdf", 1, "regression"),
+    (ORIGINAL, "qpdf-wrong-unicode.pdf", 1, "regression"),
+    (ORIGINAL, "encrypted.pdf", 2, "inconclusive"),
+    (QUOTE, "quote-compressed.pdf", 0, "pass"),
+    (QUOTE, "quote-wrong-unicode.pdf", 1, "regression"),
+    (QUOTE, "quote-encrypted.pdf", 2, "inconclusive"),
+)
 
 
 def build_example(moon, work, consumer, registry):
@@ -60,7 +65,6 @@ def run_report(command, expected_code):
 
 def verify(moon, registry):
     version = re.search(r'^version = "([^"]+)"$', (ROOT / "moon.mod").read_text(), re.M)[1]
-    baseline = FIXTURES / "pdfkit-0.18.0-300.pdf"
     cli = ROOT / "dist" / f"pdftextguard-v{version}.cjs"
     work_root = ROOT / ".work"
     work_root.mkdir(exist_ok=True)
@@ -72,12 +76,12 @@ def verify(moon, registry):
         for name in ("moon.mod", "moon.pkg", "main.mbt"):
             shutil.copyfile(EXAMPLE / name, consumer / name)
         example = build_example(moon, work, consumer, registry)
-        for name, (code, outcome) in CASES.items():
-            paths = [baseline, FIXTURES / name]
+        for baseline, name, code, outcome in CASES:
+            paths = [FIXTURES / baseline, FIXTURES / name]
             report = run_report(["node", example, *paths], code)
             assert (report["tool_version"], report["exit_code"], report["outcome"]) == (version, code, outcome)
             assert report == run_report(["node", cli, "check", *paths, "--json"], code), name
-            cases.append({"candidate": name, "exit_code": code, "outcome": outcome})
+            cases.append({"baseline": baseline, "candidate": name, "exit_code": code, "outcome": outcome})
             print(f"MoonBit library {name}: {code} {outcome}", flush=True)
     return cases
 

@@ -79,6 +79,11 @@ def main(root=ROOT):
             acceptance["toolVersion"] != version or acceptance["artifactSha256"] != digest or
             acceptance["cliChecks"] != proof["casesPassed"] or acceptance["batchChecks"] != "passed"):
         raise ValueError("Build and verify the exact artifact before packaging.")
+    for name, expected in independent["quote"]["inputSha256"].items():
+        content = (root / name).read_bytes()
+        if sha256(content).hexdigest() != expected:
+            raise ValueError(f"{name} differs from the independently verified quote inputs.")
+        receipts[name] = content
     benchmark_file = root / "verification" / "benchmark-results.json"
     if benchmark_file.exists():
         benchmark_bytes = benchmark_file.read_bytes()
@@ -117,6 +122,7 @@ def main(root=ROOT):
                     "REVIEW.md", f"dist/PDFTextGuard-v{version}-demo.mp4"):
         members.update(path.relative_to(root).as_posix() for path in root.glob(pattern))
     verified_files = {**checked_docs, **batch_files, **receipts, cli: cli_bytes}
+    members.update(verified_files)
     archive = root / "dist" / (prefix + ".zip")
     checksum = archive.with_suffix(".zip.sha256")
     # Stage beside the outputs so they inherit the dist directory's access rules.

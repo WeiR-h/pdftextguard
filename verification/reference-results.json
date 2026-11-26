@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.14",
-  "artifactSha256": "844c1a69af472e62f67710f251b5beff63d0f620889034deb4f9c3d8afbb1214",
+  "toolVersion": "0.0.15",
+  "artifactSha256": "5cef1151241240faaa2e934d66c2477fcc6a6712c1e517751b99a28b6b74e00f",
   "all_assertions_passed": true,
   "pypdf": "6.21.4",
   "pypdfium2": "5.13.0",
@@ -393,5 +393,151 @@
       "value_offset": 2389,
       "range_index": 44
     }
+  },
+  "quote": {
+    "inputSha256": {
+      "verification/fixtures/quote.json": "733fdae02a94d41b03b312cd6060b0ffe321027434a8545afb8f04eeea090219",
+      "verification/pdfbox/QuoteFixture.java": "1ec6b3c312661dce6589ab7bd2850f432bfd4e6e6d247e66a367593d1a0c7831",
+      "verification/assets/OFL-LXGW-WenKai.txt": "ef535bf1a3c546928f8e97570f2c72603185f88fa4d82a6df6708348ad4c7614",
+      "verification/fixtures/quote-classic.pdf": "383f7bb5ca14bae9975627765c26aee4e70d9f7fb21970b26b60bfbdbf01a941",
+      "verification/fixtures/quote-compressed.pdf": "582d459988031620d5c1390019fc2a8e4e3369275eab958991fb2f2ce6fd1f1c",
+      "verification/fixtures/quote-encrypted.pdf": "d3053813329416f91fb301ecfbccb41f18bfa12dd699765a51315279948a0b8d",
+      "verification/fixtures/quote-wrong-unicode.pdf": "66d5b7ebc32e4dc4c14b69282ce97a1f2e3742ecc0e22c85c0d9a23301dfa361"
+    },
+    "perPageObservations": {
+      "quote-classic.pdf": [
+        {
+          "rgb_sha256": "ec4f0fe95c80f181218b250c12b130037a90340986f8f77192aa5d8e468bfa36",
+          "text_utf8_sha256": "46b08639b54551c18d3c4a2d5fd6f87104371ad54367b869238912029fc2b8eb",
+          "text_prefix": "项目报价单\r\nQUOTATION / S"
+        },
+        {
+          "rgb_sha256": "6fcb2044f77315b75dfb39ebc295a87ec385b7e49bad0b2d55aee35726901149",
+          "text_utf8_sha256": "618204e7966a06af63c1ace57f2f4594ad5ca4b6765202c764be880eddf71ccd",
+          "text_prefix": "核对明细\r\nREVIEW / SAMPL"
+        }
+      ],
+      "quote-compressed.pdf": [
+        {
+          "rgb_sha256": "ec4f0fe95c80f181218b250c12b130037a90340986f8f77192aa5d8e468bfa36",
+          "text_utf8_sha256": "46b08639b54551c18d3c4a2d5fd6f87104371ad54367b869238912029fc2b8eb",
+          "text_prefix": "项目报价单\r\nQUOTATION / S"
+        },
+        {
+          "rgb_sha256": "6fcb2044f77315b75dfb39ebc295a87ec385b7e49bad0b2d55aee35726901149",
+          "text_utf8_sha256": "618204e7966a06af63c1ace57f2f4594ad5ca4b6765202c764be880eddf71ccd",
+          "text_prefix": "核对明细\r\nREVIEW / SAMPL"
+        }
+      ],
+      "quote-wrong-unicode.pdf": [
+        {
+          "rgb_sha256": "ec4f0fe95c80f181218b250c12b130037a90340986f8f77192aa5d8e468bfa36",
+          "text_utf8_sha256": "46b08639b54551c18d3c4a2d5fd6f87104371ad54367b869238912029fc2b8eb",
+          "text_prefix": "项目报价单\r\nQUOTATION / S"
+        },
+        {
+          "rgb_sha256": "6fcb2044f77315b75dfb39ebc295a87ec385b7e49bad0b2d55aee35726901149",
+          "text_utf8_sha256": "7485bdc5a441714d123ca9df7088f44b25cc5daf90d14aa9341500476df3de75",
+          "text_prefix": "核对明细\r\nREVIEW / SAMPL"
+        }
+      ]
+    },
+    "before": "合计",
+    "after": "台计",
+    "diagnostic": {
+      "code": "mapping_changed",
+      "side": "both",
+      "message": "the same drawn glyph now maps to different Unicode scalars",
+      "page": 2,
+      "baseline": {
+        "page": 2,
+        "content_object": {
+          "number": 9,
+          "generation": 0
+        },
+        "stream_index": 0,
+        "operator": "Tj",
+        "operator_offset": 433,
+        "string_offset": 398,
+        "byte_index": 0,
+        "font_resource": "/F1",
+        "font_object": {
+          "number": 12,
+          "generation": 0
+        },
+        "descendant_object": {
+          "number": 13,
+          "generation": 0
+        },
+        "font_file_object": {
+          "number": 18,
+          "generation": 0
+        },
+        "cmap_object": {
+          "number": 14,
+          "generation": 0
+        },
+        "code": "166A",
+        "cid": 5738,
+        "gid": 54,
+        "origin_x": 61,
+        "origin_y": 479,
+        "unicode": [
+          "U+5408"
+        ],
+        "rule": {
+          "operator": "bfrange",
+          "decoded_offset": 720,
+          "decoded_end": 740,
+          "value_offset": 734,
+          "range_index": 0
+        }
+      },
+      "candidate": {
+        "page": 2,
+        "content_object": {
+          "number": 18,
+          "generation": 0
+        },
+        "stream_index": 0,
+        "operator": "Tj",
+        "operator_offset": 433,
+        "string_offset": 398,
+        "byte_index": 0,
+        "font_resource": "/F1",
+        "font_object": {
+          "number": 6,
+          "generation": 0
+        },
+        "descendant_object": {
+          "number": 7,
+          "generation": 0
+        },
+        "font_file_object": {
+          "number": 10,
+          "generation": 0
+        },
+        "cmap_object": {
+          "number": 13,
+          "generation": 0
+        },
+        "code": "166A",
+        "cid": 5738,
+        "gid": 54,
+        "origin_x": 61,
+        "origin_y": 479,
+        "unicode": [
+          "U+53F0"
+        ],
+        "rule": {
+          "operator": "bfrange",
+          "decoded_offset": 720,
+          "decoded_end": 740,
+          "value_offset": 734,
+          "range_index": 0
+        }
+      }
+    },
+    "encryptedControl": "unsupported"
   }
 }

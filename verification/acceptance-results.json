@@ -1,9 +1,9 @@
 {
-  "toolVersion": "0.0.14",
-  "artifactSha256": "844c1a69af472e62f67710f251b5beff63d0f620889034deb4f9c3d8afbb1214",
+  "toolVersion": "0.0.15",
+  "artifactSha256": "5cef1151241240faaa2e934d66c2477fcc6a6712c1e517751b99a28b6b74e00f",
   "moonVersion": "0.1.20261104",
   "mooncVersion": "v0.10.20+65efd5b93",
-  "cliChecks": 53,
+  "cliChecks": 56,
   "moonbitTests": "passed",
   "markdownChecks": "passed",
   "pageResultsChecks": "passed",
@@ -22,22 +22,44 @@
   "independentPdfChecks": "passed",
   "moonbitSourceConsumerCases": [
     {
+      "baseline": "pdfkit-0.18.0-300.pdf",
       "candidate": "subset-reordered.pdf",
       "exit_code": 0,
       "outcome": "pass"
     },
     {
+      "baseline": "pdfkit-0.18.0-300.pdf",
       "candidate": "pdfkit-0.17.2-300.pdf",
       "exit_code": 1,
       "outcome": "regression"
     },
     {
+      "baseline": "pdfkit-0.18.0-300.pdf",
       "candidate": "qpdf-wrong-unicode.pdf",
       "exit_code": 1,
       "outcome": "regression"
     },
     {
+      "baseline": "pdfkit-0.18.0-300.pdf",
       "candidate": "encrypted.pdf",
+      "exit_code": 2,
+      "outcome": "inconclusive"
+    },
+    {
+      "baseline": "quote-classic.pdf",
+      "candidate": "quote-compressed.pdf",
+      "exit_code": 0,
+      "outcome": "pass"
+    },
+    {
+      "baseline": "quote-classic.pdf",
+      "candidate": "quote-wrong-unicode.pdf",
+      "exit_code": 1,
+      "outcome": "regression"
+    },
+    {
+      "baseline": "quote-classic.pdf",
+      "candidate": "quote-encrypted.pdf",
       "exit_code": 2,
       "outcome": "inconclusive"
     }

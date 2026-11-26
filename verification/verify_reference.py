@@ -61,9 +61,9 @@ def real_export_facts(path):
     }, cmap
 
 
-def pdfium_observation(path, preview=None):
+def pdfium_observation(path, preview=None, *, page_index=0):
     with pdfium.PdfDocument(str(path)) as doc:
-        with closing(doc[0]) as page:
+        with closing(doc[page_index]) as page:
             with closing(page.render(scale=1.0)) as bitmap:
                 rgb = bitmap.to_pil().convert("RGB")
                 pixels = digest(rgb.tobytes())
@@ -264,6 +264,73 @@ def verify_qpdf(baseline, baseline_text):
             "verified_changed_rule": diagnostic["candidate"]["rule"]}
 
 
+def verify_quote():
+    meta_path = FIXTURES / "quote.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    inputs = {meta_path: digest(meta_path.read_bytes()),
+              HERE / "pdfbox/QuoteFixture.java": meta["sourceSha256"],
+              HERE / "assets/OFL-LXGW-WenKai.txt": meta["font"]["licenseSha256"]}
+    for name, expected in meta["fixtureSha256"].items():
+        inputs[FIXTURES / name] = expected
+    for path, expected in inputs.items():
+        assert digest(path.read_bytes()) == expected, path
+
+    observations = {}
+    canonical = {}
+    for name in (*meta["realExports"], "quote-wrong-unicode.pdf"):
+        path = FIXTURES / name
+        reader = PdfReader(path, strict=True)
+        assert len(reader.pages) == 2
+        assert bool(reader.xref_objStm) == (name != "quote-classic.pdf")
+        observations[name] = []
+        canonical[name] = []
+        for index, page in enumerate(reader.pages):
+            facts, text = pdfium_observation(path, page_index=index)
+            other_reader = page.extract_text()
+            assert "".join(text.split()) == "".join(other_reader.split())
+            observations[name].append(facts)
+            canonical[name].append(text)
+
+    before = observations["quote-classic.pdf"]
+    assert all([page["rgb_sha256"] for page in pages] == [page["rgb_sha256"] for page in before]
+               for pages in observations.values())
+    original = canonical["quote-classic.pdf"]
+    assert original[1].count("合计") == 1 and "台计" not in original[1]
+    assert canonical["quote-compressed.pdf"] == original
+    assert canonical["quote-wrong-unicode.pdf"] == [original[0], original[1].replace("合计", "台计")]
+    encrypted = PdfReader(FIXTURES / "quote-encrypted.pdf", password="sample-reader")
+    assert encrypted.is_encrypted and len(encrypted.pages) == 2
+
+    cases = json.loads((HERE / "cli-results.json").read_text(encoding="utf-8"))["cases"]
+    changed = next(case for case in cases if case["name"] == "quote page two controlled mapping change")
+    diagnostic = changed["diagnostic"]
+    assert changed["mismatches"] == 1 and diagnostic["page"] == 2
+    for side, file, target in [("baseline", "quote-classic.pdf", b"<5408>"),
+                               ("candidate", "quote-wrong-unicode.pdf", b"<53f0>")]:
+        witness = diagnostic[side]
+        page = PdfReader(FIXTURES / file, strict=True).pages[1]
+        font = page["/Resources"]["/Font"].raw_get(witness["font_resource"])
+        cmap = font.get_object().raw_get("/ToUnicode")
+        assert object_ref(font) == witness["font_object"]
+        assert object_ref(cmap) == witness["cmap_object"]
+        assert object_ref(page.raw_get("/Contents")) == witness["content_object"]
+        content = page.get_contents().get_data()
+        offset = witness["operator_offset"]
+        assert content[offset:offset + 2] == b"Tj"
+        rule = witness["rule"]
+        raw = cmap.get_object().get_data()
+        lo, hi, value = (rule[key] for key in ("decoded_offset", "decoded_end", "value_offset"))
+        assert raw[lo:hi].startswith(b"<" + witness["code"].encode() + b">")
+        assert lo <= value < hi and raw[value:value + len(target)].lower() == target
+
+    return {
+        "inputSha256": {path.relative_to(HERE.parent).as_posix(): value for path, value in inputs.items()},
+        "perPageObservations": observations,
+        "before": "合计", "after": "台计", "diagnostic": diagnostic,
+        "encryptedControl": "unsupported",
+    }
+
+
 def main():
     meta = json.loads((FIXTURES / "generator.json").read_text(encoding="utf-8"))
     facts, cmaps, texts = {}, {}, {}
@@ -314,6 +381,7 @@ def main():
         "order_cases": order_results,
         "pdfbox": verify_pdfbox(),
         "qpdf": verify_qpdf(facts[baseline], texts[baseline]),
+        "quote": verify_quote(),
     }
     (HERE / "reference-results.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n",

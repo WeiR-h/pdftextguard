@@ -63,6 +63,7 @@ def verify(moon, offline):
         build.append("-Offline")
     run(*build)
     run("node", VERIFICATION / "smoke.cjs")
+    run("node", VERIFICATION / "quote_demo.cjs")
     run("node", VERIFICATION / "markdown_test.cjs")
     run("node", VERIFICATION / "suite_test.cjs")
     run(sys.executable, VERIFICATION / "page_results_test.py")
