@@ -17,15 +17,15 @@ INK = "#172b27"
 TEAL = "#087d68"
 
 
-def excerpt(name):
+def excerpt(name, *, page_index=0, clip=None):
     document = PdfDocument(FIXTURES / name)
-    page = document[0]
+    page = document[page_index]
     bitmap = page.render(scale=1.8)
     image = bitmap.to_pil().convert("RGB").copy()
     bitmap.close()
     page.close()
     document.close()
-    bbox = ImageChops.difference(image, Image.new("RGB", image.size, "white")).getbbox()
+    bbox = clip or ImageChops.difference(image, Image.new("RGB", image.size, "white")).getbbox()
     return ImageOps.contain(image.crop(bbox), (504, 238), method=Image.Resampling.LANCZOS)
 
 
@@ -33,12 +33,17 @@ def render(tag, work, font_file):
     font = lambda size: ImageFont.truetype(str(font_file), size=size)
     proof = json.loads((ROOT / "verification/reference-results.json").read_text(encoding="utf-8"))
     assert "v" + proof["toolVersion"] == tag
-    report = proof["pdfbox"]["verified_changed_rule"]
+    quote = proof["quote"]
+    diagnostic = quote["diagnostic"]["candidate"]
+    rule = diagnostic["rule"]
+    cmap = diagnostic["cmap_object"]
+    quote_clip = (102, 466, 1007, 627)
+    baseline = excerpt("quote-classic.pdf", page_index=1, clip=quote_clip)
+    changed = excerpt("quote-wrong-unicode.pdf", page_index=1, clip=quote_clip)
+    assert baseline.tobytes() == changed.tobytes()
     old = excerpt("pdfkit-0.17.2-300.pdf")
     current = excerpt("pdfkit-0.18.0-300.pdf")
     assert old.tobytes() == current.tobytes()
-    pdfbox = excerpt("pdfbox-compressed.pdf")
-    assert pdfbox.tobytes() == excerpt("pdfbox-wrong-unicode.pdf").tobytes()
 
     def slide(number, title, duration, body, images=()):
         image = Image.new("RGB", (1280, 720), CREAM)
@@ -69,28 +74,28 @@ def render(tag, work, font_file):
             "文字层里的 Unicode 映射仍可能改变，影响复制、搜索和索引。",
             "PDFTextGuard 检查同一源文档的两次导出，并给出可复核的位置。",
         ]),
-        slide(1, "真实回归 · PDFKit #1659", 16, [
-            "PDFium 验证两份输出像素一致，提取文字不同。",
+        slide(1, "中英报价单 · 第二页", 16, [
+            "两份报价单的两页像素相同。受控样本改写一个 Unicode 映射。",
+            "PDFium 和 pypdf 复核出“合计”与“台计”的提取差异。",
+        ], [("基线提取 · " + quote["before"], baseline), ("受控样本提取 · " + quote["after"], changed)]),
+        slide(2, "一个命令，复跑三种结果", 18, [
+            "node verification/quote_demo.cjs",
+            "0  普通与压缩导出一致 · 检查 224 次绘制",
+            f"1  第 2 页 · ToUnicode {cmap['number']} {cmap['generation']} R · 字节 {rule['decoded_offset']}–{rule['decoded_end']}",
+            "2  加密输入 · 无法确认",
+        ]),
+        slide(3, "真实回归 · PDFKit #1659", 19, [
+            "PDFKit 0.17.2 与 0.18.0 绘制相同，文字提取结果不同。",
             "第一页 ToUnicode 17 0 R 的规则声明 1 个范围，实际有 2 个。",
         ], [("旧版 0.17.2", old), ("修复版 0.18.0", current)]),
-        slide(2, "一个命令，复跑三种结果", 18, [
-            "node verification/demo.cjs",
-            "0  正常换子集 · 检查 300 次绘制",
-            "1  真实 PDFKit 回归 · beginbfrange 字节 243–257",
-            "2  加密输入 · 无法确认，门禁阻断",
-        ]),
-        slide(3, "第二种导出 · PDFBox 3.0.4", 19, [
-            "同一 Java 源文档，两种真实保存方式通过门禁。",
-            f"受控错映射 ! → Z · 第 1 页 · ToUnicode 字节 {report['decoded_offset']}–{report['decoded_end']}",
-        ], [("默认压缩保存", pdfbox), ("受控错映射 · 像素一致", pdfbox)]),
         slide(4, "接到 PDF 导出 CI", 15, [
-            "提交同源的基线与候选文件，检查器输出 JSON 定位报告。",
+            "用一份清单检查多组导出，在作业摘要看到受影响的组别与页码。",
             "0 放行。遇到回归或无法确认时，保留报告并阻断任务。",
-            "公开发布包由 GitHub Actions 从空环境下载、校验和复跑。",
+            "中途报错时，已完成的组仍有独立 JSON 与 Markdown 报告。",
         ]),
         slide(5, "下载演示包，自己复跑", 12, [
             "github.com/WeiR-h/pdftextguard",
-            f"发布版本 {tag} · SHA-256 · CLI · 源码 · 独立核对记录",
+            f"{tag} · ZIP 与 SHA-256 · CLI · 源码 · 独立核对记录",
             "Mooncakes 库 WeiR-h/pdftextguard",
         ]),
     ]

@@ -18,6 +18,10 @@ BATCH_FILES = (
     "verification/install_action_test.py",
     "verification/suite.cjs",
     "verification/suite_test.cjs",
+    "verification/page_results_test.py",
+    "verification/quote_demo.cjs",
+    "verification/batch_benchmark.cjs",
+    "examples/quote-pairs.json",
 )
 ACTION_EXAMPLES = ("examples/pdf-export-gate.yml", "examples/pdf-export-suite.yml")
 CONSUMER_MANIFEST = "examples/moonbit-consumer/moon.mod"
@@ -84,6 +88,16 @@ def main(root=ROOT):
         if sha256(content).hexdigest() != expected:
             raise ValueError(f"{name} differs from the independently verified quote inputs.")
         receipts[name] = content
+    batch_benchmark = "verification/batch-benchmark-results.json"
+    batch_bytes = (root / batch_benchmark).read_bytes()
+    batch = json.loads(batch_bytes)
+    quote_pdfs = {name: expected for name, expected in independent["quote"]["inputSha256"].items()
+                  if name.endswith(".pdf")}
+    if (batch["toolVersion"] != version or batch["artifactSha256"] != digest or
+            batch["pairs"] != acceptance["batchBenchmarkPairs"] or
+            batch["inputSha256"] != quote_pdfs):
+        raise ValueError("Batch benchmark receipt does not match the tested binary and quote samples.")
+    receipts[batch_benchmark] = batch_bytes
     benchmark_file = root / "verification" / "benchmark-results.json"
     if benchmark_file.exists():
         benchmark_bytes = benchmark_file.read_bytes()

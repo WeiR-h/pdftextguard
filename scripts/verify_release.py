@@ -84,6 +84,7 @@ def verify(moon, offline):
         if candidate["median_ms"] > baseline["median_ms"] * 1.10:
             raise ValueError(f"{workload['name']} exceeded the 10% performance limit")
     write_receipt(VERIFICATION / "benchmark-results.json", benchmark)
+    run("node", VERIFICATION / "batch_benchmark.cjs", VERIFICATION / "batch-benchmark-results.json")
     cli = receipt(VERIFICATION / "cli-results.json")
     if batch_snapshot(ROOT)[1] != batch_hashes:
         raise ValueError("Batch and Action files changed during verification; rerun the release checks.")
@@ -103,6 +104,7 @@ def verify(moon, offline):
         "moonbitSourceConsumerCases": receipt(consumer),
         "performanceBaseline": BASELINE_TAG,
         "performanceLimitPercent": 10,
+        "batchBenchmarkPairs": 20,
     }
     write_receipt(VERIFICATION / "acceptance-results.json", acceptance)
     run(sys.executable, ROOT / "scripts" / "package_release.py")

@@ -1,6 +1,6 @@
 {
-  "toolVersion": "0.0.16",
-  "artifactSha256": "de3f2606dd5d06c1cf9dd59b636562bfffc70be5b0ca59c0d00addff163ce529",
+  "toolVersion": "0.1.0",
+  "artifactSha256": "d133e0d7c26be384a69c2180d62b53fc22fd6fddad4cc17f86a7fc200486647c",
   "moonVersion": "0.1.20261104",
   "mooncVersion": "v0.10.20+65efd5b93",
   "cliChecks": 56,
@@ -16,7 +16,11 @@
     "verification/install_action.py": "86836bac46253def9a1afda62d7a31adbf63ce50bb6c4d628a85ede9e93247e7",
     "verification/install_action_test.py": "20c9b7ec96fdb31f0649dfe4049acdabb266944c996297c9892c8f99f68c9976",
     "verification/suite.cjs": "a4777980b60eb9c55092292371120a023a65c033881661f4ff3e426c32501029",
-    "verification/suite_test.cjs": "c7459b968b9a589c35771f28bdb4a8c41c80ea132c0313731854893e5e56f43b"
+    "verification/suite_test.cjs": "c7459b968b9a589c35771f28bdb4a8c41c80ea132c0313731854893e5e56f43b",
+    "verification/page_results_test.py": "53459282e59859a23180838fb4a23b70c3afea3069bc02b84836c67ec854ea19",
+    "verification/quote_demo.cjs": "04437baea131d78ce570d1b142f2c470b22a8fd102677010eabde31392bc0e0a",
+    "verification/batch_benchmark.cjs": "74c5cdb4fcf69984d5e148dc176fc3d69d6d976ab250abde0c66ffc2826333f4",
+    "examples/quote-pairs.json": "551584690fefcf5d71c19ddcdd8f9b85048617048d5532a8d826f6b5d3d429f4"
   },
   "checksumRejection": "passed",
   "independentPdfChecks": "passed",
@@ -65,5 +69,6 @@
     }
   ],
   "performanceBaseline": "v0.0.11",
-  "performanceLimitPercent": 10
+  "performanceLimitPercent": 10,
+  "batchBenchmarkPairs": 20
 }

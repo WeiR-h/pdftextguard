@@ -17,3 +17,9 @@ moon run --target js . -- ../../verification/fixtures/pdfkit-0.18.0-300.pdf ../.
 | `pdfkit-0.17.2-300.pdf` | `1`。第 1 页 CMap 声明 1 个范围，实际有 2 个。 |
 | `qpdf-wrong-unicode.pdf` | `1`。转存后仍定位到预置的 `!` 到 `Z` 错映射。 |
 | `encrypted.pdf` | `2`。加密输入无法确认。 |
+
+两页报价单可用下面的命令复跑。报告的 `page_results` 会标记第 2 页回归，并给出一处映射变化。
+
+```sh
+moon run --target js . -- ../../verification/fixtures/quote-classic.pdf ../../verification/fixtures/quote-wrong-unicode.pdf
+```

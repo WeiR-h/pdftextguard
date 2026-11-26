@@ -9,8 +9,9 @@ const { performance } = require('node:perf_hooks');
 
 const root = join(__dirname, '..');
 const versions = process.argv.slice(2);
-if (!versions.length || versions.some(v => !/^v0\.0\.\d+$/.test(v))) {
-  throw Error('Usage: node verification/benchmark.cjs v0.0.1 [v0.0.x ...]');
+const stableTag = /^v(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*)){2}$/;
+if (!versions.length || versions.some(version => !stableTag.test(version))) {
+  throw Error('Usage: node verification/benchmark.cjs vMAJOR.MINOR.PATCH [version ...]');
 }
 const repetitions = 9;
 const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex');
