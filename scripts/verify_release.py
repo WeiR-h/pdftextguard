@@ -65,6 +65,7 @@ def verify(moon, offline):
     run("node", VERIFICATION / "smoke.cjs")
     run("node", VERIFICATION / "markdown_test.cjs")
     run("node", VERIFICATION / "suite_test.cjs")
+    run(sys.executable, VERIFICATION / "page_results_test.py")
     run(sys.executable, VERIFICATION / "install_action_test.py")
     run(sys.executable, VERIFICATION / "verify_reference.py")
     consumer = WORK / "moonbit-source-results.json"
@@ -93,6 +94,7 @@ def verify(moon, offline):
         "cliChecks": cli["casesPassed"],
         "moonbitTests": "passed",
         "markdownChecks": "passed",
+        "pageResultsChecks": "passed",
         "batchChecks": "passed",
         "batchSourceSha256": batch_hashes,
         "checksumRejection": "passed",

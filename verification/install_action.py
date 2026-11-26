@@ -2,18 +2,14 @@
 
 import os
 from pathlib import Path
-import re
 from tempfile import mkdtemp
 
-from fetch_release import fetch
+from fetch_release import fetch, manifest_version
 
 
 def main():
     manifest = Path(__file__).resolve().parents[1] / "moon.mod"
-    version = re.search(r'^version = "(0\.0\.\d+)"$', manifest.read_text(encoding="utf-8"), re.M)
-    if version is None:
-        raise ValueError("Composite action requires a v0.0.x module version")
-    tag = f"v{version[1]}"
+    tag = f"v{manifest_version(manifest.read_text(encoding='utf-8'))}"
     destination = Path(mkdtemp(prefix="pdftextguard-", dir=os.environ["RUNNER_TEMP"])) / "release"
     fetch(tag, destination)
     with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as outputs:

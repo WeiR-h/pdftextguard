@@ -72,6 +72,17 @@ fn markdown_report(
   out.write_string(
     "Aligned \{report.aligned_glyphs} glyph occurrences, compared \{report.compared_glyphs}, found \{report.mismatched_occurrences} mapping changes.\n",
   )
+  if !report.page_results.is_empty() {
+    out.write_string(
+      "\n## Page results\n\n| Page | Outcome | Aligned | Compared | Changes | Reason codes |\n| ---: | --- | ---: | ---: | ---: | --- |\n",
+    )
+    for page in report.page_results {
+      let reasons = page.diagnostic_codes.join(", ")
+      out.write_string(
+        "| \{page.page} | \{page.outcome} | \{page.aligned_glyphs} | \{page.compared_glyphs} | \{page.mismatched_occurrences} | \{markdown_text(reasons)} |\n",
+      )
+    }
+  }
   if !report.diagnostics.is_empty() {
     out.write_string("\n## Diagnostics\n\nDecoded CMap byte ranges use inclusive starts and exclusive ends.\n\n")
   }

@@ -1,5 +1,5 @@
 ///|
-pub let version : String = "0.0.13"
+pub let version : String = "0.0.14"
 
 ///|
 #derive(@json.ToJson)
@@ -97,6 +97,21 @@ pub struct Diagnostic {
 pub extend Diagnostic with @json.ToJson::{to_json}
 
 ///|
+/// Coverage and comparison counts for one pair of pages with the same page number.
+#derive(@json.ToJson)
+pub struct PageResult {
+  page : Int32
+  outcome : String
+  aligned_glyphs : Int32
+  compared_glyphs : Int32
+  mismatched_occurrences : Int32
+  diagnostic_codes : Array[String]
+}
+
+///|
+pub extend PageResult with @json.ToJson::{to_json}
+
+///|
 #derive(@json.ToJson)
 pub struct Report {
   schema_version : Int32
@@ -112,6 +127,7 @@ pub struct Report {
   position_aligned_pages : Int32
   compared_glyphs : Int32
   mismatched_occurrences : Int32
+  page_results : Array[PageResult]
   diagnostics_omitted : Int32
   diagnostics : Array[Diagnostic]
 }

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Published v0.0.x tag
+        description: Published vMAJOR.MINOR.PATCH tag
         required: true
         type: string
 permissions:
@@ -17,9 +17,11 @@ jobs:
     env:
       PDFTEXTGUARD_TAG: ${{ inputs.version || github.event.release.tag_name }}
     steps:
+      - name: Validate release tag
+        run: '[[ "$PDFTEXTGUARD_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]'
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.version || github.event.release.tag_name }}
+          ref: refs/tags/${{ env.PDFTEXTGUARD_TAG }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:

@@ -8,9 +8,19 @@ from urllib.request import urlopen
 from zipfile import ZipFile
 
 
+VERSION = r"(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*)){2}"
+
+
+def manifest_version(manifest):
+    version = re.search(rf'^version = "({VERSION})"\r?$', manifest, re.M)
+    if version is None:
+        raise ValueError("Expected a stable module version in moon.mod")
+    return version[1]
+
+
 def fetch(tag, destination):
-    if not re.fullmatch(r"v0\.0\.\d+", tag):
-        raise ValueError("Expected a v0.0.x release tag")
+    if not re.fullmatch(rf"v{VERSION}", tag):
+        raise ValueError("Expected a stable vMAJOR.MINOR.PATCH release tag")
     prefix = f"PDFTextGuard-{tag}"
     filename = f"{prefix}.zip"
     url = f"https://github.com/WeiR-h/pdftextguard/releases/download/{tag}"
@@ -33,6 +43,9 @@ def fetch(tag, destination):
             if (not path.parts or path.parts[0] != prefix or ".." in path.parts
                     or "\\" in name or ":" in name):
                 raise ValueError("Unexpected ZIP path")
+        version = manifest_version(package.read(f"{prefix}/moon.mod").decode("utf-8"))
+        if tag != f"v{version}":
+            raise ValueError("Packaged module version does not match the release tag")
         package.extractall(destination)
     print(expected + "  " + filename)
 

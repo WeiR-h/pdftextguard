@@ -1,6 +1,13 @@
 ///|
+priv struct PageFindings {
+  codes : Array[String]
+  mut blocked : Bool
+}
+
+///|
 priv struct Findings {
   entries : Array[Diagnostic]
+  pages : Array[PageFindings]
   mut omitted : Int32
   mut blocked : Bool
   mut aligned : Int32
@@ -10,7 +17,22 @@ priv struct Findings {
 }
 
 ///|
+fn Findings::record_page_code(
+  self : Findings,
+  page : Int32?,
+  code : String,
+) -> Unit {
+  if page is Some(number) && number > 0 && number <= self.pages.length() {
+    let codes = self.pages[number - 1].codes
+    if !codes.contains(code) {
+      codes.push(code)
+    }
+  }
+}
+
+///|
 fn Findings::add(self : Findings, entry : Diagnostic) -> Unit {
+  self.record_page_code(entry.page, entry.code)
   if self.entries.length() < 80 {
     self.entries.push(entry)
   } else {
@@ -21,6 +43,9 @@ fn Findings::add(self : Findings, entry : Diagnostic) -> Unit {
 ///|
 fn Findings::block(self : Findings, entry : Diagnostic) -> Unit {
   self.blocked = true
+  if entry.page is Some(page) && page > 0 && page <= self.pages.length() {
+    self.pages[page - 1].blocked = true
+  }
   self.add(entry)
 }
 
@@ -67,20 +92,23 @@ fn compare_page(
         (Some(_), _) => {
           findings.compared += 1
           findings.changed += 1
+          let missing = current.glyph.mapping is None
+          let code = if missing { "mapping_missing" } else { "mapping_changed" }
           if findings.entries.length() >= 80 {
+            findings.record_page_code(Some(page), code)
             findings.omitted += 1
             continue
           }
-          let item = if current.glyph.mapping is None {
+          let item = if missing {
             note(
-              "mapping_missing",
+              code,
               "candidate",
               "a used code lost its explicit ToUnicode mapping",
               page~,
             )
           } else {
             note(
-              "mapping_changed",
+              code,
               "both",
               "the same drawn glyph now maps to different Unicode scalars",
               page~,
@@ -142,8 +170,18 @@ fn check_impl(
 ) -> Report {
   let old = scan_document(baseline, "baseline")
   let current = scan_document(candidate, "candidate")
+  let pages : Array[PageFindings] = []
+  if old.pages.length() == current.pages.length() {
+    for index, page in old.pages {
+      pages.push({
+        codes: [],
+        blocked: page.blocked || page.syntax_error || current.pages[index].blocked,
+      })
+    }
+  }
   let findings : Findings = {
     entries: [],
+    pages,
     omitted: 0,
     blocked: old.blocked || current.blocked || old.syntax_error,
     aligned: 0,
@@ -158,6 +196,7 @@ fn check_impl(
     findings.add(issue)
   }
   check_baseline_mappings(old, findings)
+  let page_results : Array[PageResult] = []
   if old.pages.length() != current.pages.length() {
     findings.block(
       note(
@@ -166,7 +205,30 @@ fn check_impl(
     )
   } else {
     for i, page in old.pages {
-      compare_page(page, current.pages[i], i + 1, findings, allow_reorder)
+      let next = current.pages[i]
+      let aligned_before = findings.aligned
+      let compared_before = findings.compared
+      let changed_before = findings.changed
+      compare_page(page, next, i + 1, findings, allow_reorder)
+      let aligned = findings.aligned - aligned_before
+      let changed = findings.changed - changed_before
+      let outcome = if pages[i].blocked {
+        "inconclusive"
+      } else if changed > 0 || next.syntax_error {
+        "regression"
+      } else if aligned == 0 {
+        "no_text"
+      } else {
+        "pass"
+      }
+      page_results.push({
+        page: i + 1,
+        outcome,
+        aligned_glyphs: aligned,
+        compared_glyphs: findings.compared - compared_before,
+        mismatched_occurrences: changed,
+        diagnostic_codes: pages[i].codes,
+      })
     }
   }
   if findings.aligned == 0 && !findings.blocked {
@@ -197,6 +259,7 @@ fn check_impl(
     position_aligned_pages: findings.position_aligned_pages,
     compared_glyphs: findings.compared,
     mismatched_occurrences: findings.changed,
+    page_results,
     diagnostics_omitted: findings.omitted,
     diagnostics: findings.entries,
   }
@@ -218,6 +281,7 @@ pub fn input_error(side : String, message : String) -> Report {
     position_aligned_pages: 0,
     compared_glyphs: 0,
     mismatched_occurrences: 0,
+    page_results: [],
     diagnostics_omitted: 0,
     diagnostics: [note("input_error", side, message)],
   }
