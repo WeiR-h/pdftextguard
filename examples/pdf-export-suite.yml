@@ -12,9 +12,9 @@ jobs:
           persist-credentials: false
       - name: Compare PDF exports from the manifest
         id: pdf
-        uses: WeiR-h/pdftextguard@v0.0.15
+        uses: WeiR-h/pdftextguard@v0.0.16
         with:
-          pairs-file: examples/fixture-pairs.json
+          pairs-file: examples/quote-pairs.json
           markdown-report: 'true'
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.pdf.outputs.report-dir != '' }}

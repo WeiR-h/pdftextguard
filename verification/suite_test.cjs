@@ -16,6 +16,10 @@ const fixtures = {
   '正常 export.pdf': 'subset-reordered.pdf',
   '错误 export.pdf': 'qpdf-wrong-unicode.pdf',
   '加密 export.pdf': 'encrypted.pdf',
+  '报价 基准.pdf': 'quote-classic.pdf',
+  '报价 压缩.pdf': 'quote-compressed.pdf',
+  '报价 回归.pdf': 'quote-wrong-unicode.pdf',
+  '报价 加密.pdf': 'quote-encrypted.pdf',
 };
 const good = {id: '正常', baseline: '基准 export.pdf', candidate: '正常 export.pdf'};
 const regression = {...good, id: '回归 | <case>', candidate: '错误 export.pdf'};
@@ -71,7 +75,7 @@ function action(outputs, inputs) {
   return invoke('action_gate.cjs', [], {
     PDFTEXTGUARD_BUNDLE: repo, PDFTEXTGUARD_MARKDOWN: 'true',
     PDFTEXTGUARD_PAIRS: '', PDFTEXTGUARD_BASELINE: '', PDFTEXTGUARD_CANDIDATE: '',
-    RUNNER_TEMP: work, GITHUB_OUTPUT: outputs, ...inputs,
+    RUNNER_TEMP: work, GITHUB_OUTPUT: outputs, GITHUB_STEP_SUMMARY: '', ...inputs,
   });
 }
 
@@ -82,7 +86,7 @@ function readOutputs(file) {
   }));
 }
 
-function faultBundle() {
+function faultBundle(failOn) {
   const directory = join(work, 'fault-bundle');
   const verification = join(directory, 'verification');
   const dist = join(directory, 'dist');
@@ -101,7 +105,7 @@ function faultBundle() {
     "const args = process.argv.slice(2);",
     "const candidate = basename(args[2]);",
     "appendFileSync(join(__dirname, 'checks.log'), candidate + '\\n', 'utf8');",
-    "if (candidate === '错误 export.pdf') {",
+    `if (candidate === ${JSON.stringify(failOn)}) {`,
     "  if (process.env.PDFTEXTGUARD_TEST_FAILURE === 'write_report') {",
     "    const sidecar = args[args.indexOf('--markdown-report') + 1];",
     "    mkdirSync(sidecar.slice(0, -3) + '.json');",
@@ -173,6 +177,27 @@ try {
   assert.deepEqual(json(batch['report-path']), mixed.summary);
   assert.equal(readFileSync(batch['markdown-path'], 'utf8'), markdown);
 
+  const quotePass = {id: '中文报价正常', baseline: '报价 基准.pdf', candidate: '报价 压缩.pdf'};
+  const quoteChange = {...quotePass, id: '中文报价回归 | <case>', candidate: '报价 回归.pdf'};
+  const quoteEncrypted = {...quotePass, id: '中文报价加密', candidate: '报价 加密.pdf'};
+  const quoteSuite = manifest('中文报价批量', [quotePass, quoteChange, quoteEncrypted]);
+  const quoteOutputs = join(work, 'quote-outputs');
+  const jobSummary = join(work, 'quote-job-summary.md');
+  const quoteRun = action(quoteOutputs, {PDFTEXTGUARD_PAIRS: quoteSuite, GITHUB_STEP_SUMMARY: jobSummary});
+  assert.equal(quoteRun.status, 0, quoteRun.stderr);
+  const quoteFields = readOutputs(quoteOutputs);
+  assert.equal(quoteFields['exit-code'], '2');
+  const quoteReport = json(quoteFields['report-path']);
+  assert.deepEqual(quoteReport.pairs.map(pair => pair.exit_code), [0, 1, 2]);
+  const [affected] = quoteReport.pairs[1].affected_pages;
+  assert.equal(affected.page, 2);
+  assert.deepEqual(affected.diagnostic_codes, ['mapping_changed']);
+  assert.ok(quoteReport.pairs[2].document_codes.includes('unsupported'));
+  const job = readFileSync(jobSummary, 'utf8');
+  assert.match(job, /中文报价回归 &#124; &#60;case&#62; \| regression \| Page 2 · mapping_changed/);
+  assert.match(job, /中文报价加密 \| inconclusive \| Document · unsupported/);
+  assert.doesNotMatch(job, /\(pair-\d+/);
+
   const singleOutputs = join(work, 'single-output');
   const single = action(singleOutputs, {PDFTEXTGUARD_BASELINE: join(input, good.baseline),
     PDFTEXTGUARD_CANDIDATE: join(input, good.candidate)});
@@ -197,14 +222,14 @@ try {
   assert.match(empty.stderr, /nonempty pairs/);
   assert.ok(!existsSync(emptyOutputs));
 
-  const faults = faultBundle();
-  const interruption = manifest('中途失败', [good, regression, encrypted]);
+  const faults = faultBundle(quoteChange.candidate);
   for (const stage of ['check', 'write_report']) {
     writeFileSync(faults.log, '', 'utf8');
     const output = join(work, 'partial-' + stage);
+    const partialJob = join(work, `partial-${stage}.md`);
     const interrupted = action(output, {
-      PDFTEXTGUARD_PAIRS: interruption, PDFTEXTGUARD_BUNDLE: faults.directory,
-      PDFTEXTGUARD_TEST_FAILURE: stage,
+      PDFTEXTGUARD_PAIRS: quoteSuite, PDFTEXTGUARD_BUNDLE: faults.directory,
+      PDFTEXTGUARD_TEST_FAILURE: stage, GITHUB_STEP_SUMMARY: partialJob,
     });
     assert.notEqual(interrupted.status, 0);
     assert.ok(interrupted.stderr.includes(`during ${stage} for pair 2`), interrupted.stderr);
@@ -213,10 +238,13 @@ try {
     const directory = fields['report-dir'];
     assert.deepEqual(json(join(directory, 'execution-error.json')), {
       schema_version: 1, kind: 'suite_execution_error', stage, completed_pairs: 1,
-      pair: {index: 2, id: regression.id},
+      pair: {index: 2, id: quoteChange.id},
     });
-    assert.equal(json(join(directory, 'pair-001.json')).compared_glyphs, 300);
+    assert.equal(json(join(directory, 'pair-001.json')).compared_glyphs, 224);
     assert.match(readFileSync(join(directory, 'pair-001.md'), 'utf8'), /SHA-256/);
+    const partialText = readFileSync(partialJob, 'utf8');
+    assert.ok(partialText.includes(`Completed pairs · 1. Failed at ${stage} for pair 2.`));
+    assert.doesNotMatch(partialText, /\bResult\b/);
     for (const file of ['summary.json', 'summary.md', 'pair-002.json.tmp', 'pair-003.json', 'pair-003.md']) {
       assert.ok(!existsSync(join(directory, file)), file);
     }
@@ -225,9 +253,10 @@ try {
     } else {
       assert.ok(!existsSync(join(directory, 'pair-002.json')));
     }
-    assert.deepEqual(readFileSync(faults.log, 'utf8').trimEnd().split('\n'), [good.candidate, regression.candidate]);
+    assert.deepEqual(readFileSync(faults.log, 'utf8').trimEnd().split('\n'),
+      [quotePass.candidate, quoteChange.candidate]);
   }
-  console.log(`PASS (${process.platform}): batch 0/1/2, Unicode paths, configuration, Action outputs and partial reports.`);
+  console.log(`PASS (${process.platform}): batch 0/1/2, Action summaries, and quote evidence after both interruptions.`);
 } finally {
   rmSync(work, {recursive: true, force: true});
 }

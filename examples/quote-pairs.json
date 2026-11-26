@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "pairs": [
+    {"id": "正常压缩导出", "baseline": "../verification/fixtures/quote-classic.pdf", "candidate": "../verification/fixtures/quote-compressed.pdf"},
+    {"id": "第二页受控错映射", "baseline": "../verification/fixtures/quote-classic.pdf", "candidate": "../verification/fixtures/quote-wrong-unicode.pdf"},
+    {"id": "加密对照", "baseline": "../verification/fixtures/quote-classic.pdf", "candidate": "../verification/fixtures/quote-encrypted.pdf"}
+  ]
+}

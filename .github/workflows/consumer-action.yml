@@ -136,15 +136,22 @@ jobs:
           tag = os.environ["PDFTEXTGUARD_TAG"]
           fixtures = Path(os.environ["RUNNER_TEMP"]) / "consumer" / f"PDFTextGuard-{tag}" / "verification/fixtures"
           exports = Path("PDF 导出")
-          names = [
-              ("回归 export.pdf", "qpdf-wrong-unicode.pdf"),
-              ("加密 export.pdf", "encrypted.pdf"),
-              ("候选 export.pdf", None),
-          ]
+          quote = (fixtures / "quote-classic.pdf").is_file()
+          baseline = "基准 export.pdf"
+          if quote:
+              baseline = "批量 报价基准.pdf"
+              shutil.copyfile(fixtures / "quote-classic.pdf", exports / baseline)
+              names = [("回归 export.pdf", "quote-wrong-unicode.pdf"),
+                       ("加密 export.pdf", "quote-encrypted.pdf"),
+                       ("压缩 export.pdf", "quote-compressed.pdf")]
+          else:
+              names = [("回归 export.pdf", "qpdf-wrong-unicode.pdf"),
+                       ("加密 export.pdf", "encrypted.pdf"),
+                       ("候选 export.pdf", None)]
           for name, fixture in names:
               if fixture:
                   shutil.copyfile(fixtures / fixture, exports / name)
-          pairs = [{"id": name, "baseline": "基准 export.pdf", "candidate": name} for name, _ in names]
+          pairs = [{"id": name, "baseline": baseline, "candidate": name} for name, _ in names]
           (exports / "批量 清单.json").write_text(
               json.dumps({"schema_version": 1, "pairs": pairs}, ensure_ascii=False), encoding="utf-8"
           )
@@ -181,6 +188,13 @@ jobs:
           assert summary["tool_version"] == os.environ["PDFTEXTGUARD_TAG"][1:]
           assert summary["exit_code"] == 2 and summary["outcome"] == "inconclusive"
           assert [pair["exit_code"] for pair in summary["pairs"]] == [1, 2, 0]
+          tag = os.environ["PDFTEXTGUARD_TAG"]
+          bundle = Path(os.environ["RUNNER_TEMP"]) / "consumer" / f"PDFTextGuard-{tag}"
+          if (bundle / "examples/quote-pairs.json").is_file():
+              changed, = summary["pairs"][0]["affected_pages"]
+              assert changed["page"] == 2 and changed["diagnostic_codes"] == ["mapping_changed"]
+              assert "unsupported" in summary["pairs"][1]["document_codes"]
+              assert "Page 2 · mapping_changed" in markdown.read_text(encoding="utf-8")
           for pair in summary["pairs"]:
               saved = json.loads((directory / pair["report_path"]).read_text(encoding="utf-8"))
               assert saved["exit_code"] == pair["exit_code"]

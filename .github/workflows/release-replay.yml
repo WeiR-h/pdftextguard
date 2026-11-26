@@ -31,6 +31,9 @@ jobs:
           python3 verification/fetch_release.py "$PDFTEXTGUARD_TAG" "$RUNNER_TEMP/pdftextguard"
           bundle="$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG"
           node "$bundle/verification/demo.cjs"
+          if test -f "$bundle/verification/quote_demo.cjs"; then
+            node "$bundle/verification/quote_demo.cjs"
+          fi
           node "$bundle/verification/smoke.cjs"
           if test -f "$bundle/verification/install_action_test.py"; then
             python3 "$bundle/verification/install_action_test.py"

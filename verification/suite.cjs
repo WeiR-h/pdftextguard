@@ -23,20 +23,25 @@ function readPairs(filename) {
   });
 }
 
-function markdownSummary(summary) {
+function markdownSummary(summary, artifactLinks = true) {
   const lines = [
     '# PDFTextGuard suite',
     '',
     `Result **${summary.outcome}** (exit ${summary.exit_code}).`,
     ...outcomes.map(outcome => `- ${outcome}: ${summary.counts[outcome]}`),
     '',
-    '| Pair | Outcome | Reports |',
-    '| --- | --- | --- |',
+    '| Pair | Outcome | Affected pages and reasons |' + (artifactLinks ? ' Reports |' : ''),
+    '| --- | --- | --- |' + (artifactLinks ? ' --- |' : ''),
   ];
   for (const row of summary.pairs) {
     const id = row.id.replace(/[\r\n]+/g, ' ')
       .replace(/[\p{P}\p{Cc}\p{Cf}<>=+|~$]/gu, letter => `&#${letter.codePointAt(0)};`);
-    lines.push(`| ${id} | ${row.outcome} | [JSON](${row.report_path}) · [Markdown](${row.markdown_path}) |`);
+    const evidence = row.affected_pages.map(({page, diagnostic_codes}) =>
+      `Page ${page} · ${diagnostic_codes.join(', ')}`);
+    if (row.document_codes.length) evidence.push(`Document · ${row.document_codes.join(', ')}`);
+    const links = artifactLinks ? ` [JSON](${row.report_path})` +
+      (row.markdown_path ? ` · [Markdown](${row.markdown_path}) |` : ' |') : '';
+    lines.push(`| ${id} | ${row.outcome} | ${evidence.join('<br>') || '—'} |${links}`);
   }
   return lines.join('\n') + '\n';
 }
@@ -87,8 +92,12 @@ function runSuite(manifest, output, markdown = false, onReportDirectory) {
       counts[report.outcome]++;
       exitCode = Math.max(exitCode, report.exit_code);
       version = report.tool_version;
+      const affected = report.page_results.filter(page =>
+        page.outcome === 'regression' || page.outcome === 'inconclusive');
+      const documentCodes = new Set(report.diagnostics.filter(issue => issue.page == null).map(issue => issue.code));
       pairs.push({id: pair.id, outcome: report.outcome, exit_code: report.exit_code,
-        report_path: reportPath, ...(markdownPath && {markdown_path: markdownPath})});
+        report_path: reportPath, ...(markdownPath && {markdown_path: markdownPath}),
+        affected_pages: affected, document_codes: [...documentCodes]});
     }
     activePair = undefined;
     stage = 'write_summary';
@@ -129,4 +138,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { runSuite };
+module.exports = { runSuite, markdownSummary };

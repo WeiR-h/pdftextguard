@@ -12,7 +12,7 @@ jobs:
           persist-credentials: false
       - name: Compare the two exports
         id: pdf
-        uses: WeiR-h/pdftextguard@v0.0.15
+        uses: WeiR-h/pdftextguard@v0.0.16
         with:
           baseline: baseline.pdf
           candidate: candidate.pdf

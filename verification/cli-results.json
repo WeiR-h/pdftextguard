@@ -1,7 +1,7 @@
 {
-  "toolVersion": "0.0.15",
+  "toolVersion": "0.0.16",
   "node": "v24.13.0",
-  "artifactSha256": "5cef1151241240faaa2e934d66c2477fcc6a6712c1e517751b99a28b6b74e00f",
+  "artifactSha256": "de3f2606dd5d06c1cf9dd59b636562bfffc70be5b0ca59c0d00addff163ce529",
   "casesPassed": 56,
   "cases": [
     {
