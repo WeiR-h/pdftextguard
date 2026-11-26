@@ -1,4 +1,5 @@
-const { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } = require('node:fs');
+const { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync,
+  unlinkSync, writeFileSync } = require('node:fs');
 const { dirname, join, resolve } = require('node:path');
 const { check } = require('./gate.cjs');
 
@@ -40,38 +41,77 @@ function markdownSummary(summary) {
   return lines.join('\n') + '\n';
 }
 
-function runSuite(manifest, output, markdown = false) {
+function writeJson(path, value) {
+  const pending = path + '.tmp';
+  const file = openSync(pending, 'wx');
+  try {
+    try {
+      writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
+    } finally {
+      closeSync(file);
+    }
+    renameSync(pending, path);
+  } catch (error) {
+    try {
+      unlinkSync(pending);
+    } catch {
+      // Keep the original failure if cleanup is also unavailable.
+    }
+    throw error;
+  }
+}
+
+function runSuite(manifest, output, markdown = false, onReportDirectory) {
   const input = readPairs(manifest);
   const directory = resolve(output);
   mkdirSync(directory);
   const counts = {pass: 0, regression: 0, inconclusive: 0};
+  const pairs = [];
   let exitCode = 0;
   let version;
-  const pairs = input.map((pair, index) => {
-    const name = 'pair-' + String(index + 1).padStart(3, '0');
-    const reportPath = name + '.json';
-    const markdownPath = markdown ? name + '.md' : undefined;
-    const sidecar = markdownPath && join(directory, markdownPath);
-    const report = check(pair.baseline, pair.candidate, sidecar);
-    if (sidecar && !existsSync(sidecar)) throw Error(`Could not write Markdown for pair ${index + 1}.`);
-    writeFileSync(join(directory, reportPath), JSON.stringify(report, null, 2) + '\n', {flag: 'wx'});
-    counts[report.outcome]++;
-    exitCode = Math.max(exitCode, report.exit_code);
-    version = report.tool_version;
-    return {id: pair.id, outcome: report.outcome, exit_code: report.exit_code,
-      report_path: reportPath, ...(markdownPath && {markdown_path: markdownPath})};
-  });
-  const summary = {
-    schema_version: 1, kind: 'suite', tool_version: version, outcome: outcomes[exitCode],
-    exit_code: exitCode, counts, pairs,
-  };
-  const markdownPath = markdown ? join(directory, 'summary.md') : undefined;
-  if (markdownPath) writeFileSync(markdownPath, markdownSummary(summary), {flag: 'wx'});
-  const reportPath = join(directory, 'summary.json');
-  const pending = reportPath + '.tmp';
-  writeFileSync(pending, JSON.stringify(summary, null, 2) + '\n', {flag: 'wx'});
-  renameSync(pending, reportPath);
-  return {summary, directory, reportPath, markdownPath};
+  let stage = 'publish_report_dir';
+  let activePair;
+  try {
+    onReportDirectory?.(directory);
+    for (const [index, pair] of input.entries()) {
+      activePair = {index: index + 1, id: pair.id};
+      const name = 'pair-' + String(activePair.index).padStart(3, '0');
+      const reportPath = name + '.json';
+      const markdownPath = markdown ? name + '.md' : undefined;
+      const sidecar = markdownPath && join(directory, markdownPath);
+      stage = 'check';
+      const report = check(pair.baseline, pair.candidate, sidecar);
+      stage = 'write_report';
+      if (sidecar && !existsSync(sidecar)) throw Error('Could not write Markdown.');
+      writeJson(join(directory, reportPath), report);
+      counts[report.outcome]++;
+      exitCode = Math.max(exitCode, report.exit_code);
+      version = report.tool_version;
+      pairs.push({id: pair.id, outcome: report.outcome, exit_code: report.exit_code,
+        report_path: reportPath, ...(markdownPath && {markdown_path: markdownPath})});
+    }
+    activePair = undefined;
+    stage = 'write_summary';
+    const summary = {
+      schema_version: 1, kind: 'suite', tool_version: version, outcome: outcomes[exitCode],
+      exit_code: exitCode, counts, pairs,
+    };
+    const markdownPath = markdown ? join(directory, 'summary.md') : undefined;
+    if (markdownPath) writeFileSync(markdownPath, markdownSummary(summary), {flag: 'wx'});
+    const reportPath = join(directory, 'summary.json');
+    writeJson(reportPath, summary);
+    return {summary, directory, reportPath, markdownPath};
+  } catch (error) {
+    const failure = {schema_version: 1, kind: 'suite_execution_error', stage,
+      completed_pairs: pairs.length, ...(activePair && {pair: activePair})};
+    try {
+      writeJson(join(directory, 'execution-error.json'), failure);
+    } catch {
+      // The report directory may no longer be writable.
+    }
+    const context = activePair ? `${stage} for pair ${activePair.index}` : stage;
+    throw Error(`Suite failed during ${context}: ${error.message}\nReports: ${directory}`, {cause: error});
+  }
 }
 
 if (require.main === module) {

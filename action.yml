@@ -28,7 +28,7 @@ outputs:
     description: Absolute path to the Markdown report when generated.
     value: ${{ steps.compare.outputs.markdown-path }}
   report-dir:
-    description: Absolute path to the directory of suite reports when using pairs-file.
+    description: Absolute path to the suite report directory once created, including after execution failure.
     value: ${{ steps.compare.outputs.report-dir }}
 runs:
   using: composite

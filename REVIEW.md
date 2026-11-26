@@ -4,7 +4,7 @@
 
 ## 两分钟复现
 
-下载并解压 v0.0.13 演示包，用 Node.js 22.3 或更新版本运行 `node verification/demo.cjs`。命令依次展示正常换子集、真实 PDFKit 回归和加密输入，结果为 `0`、`1`、`2`。运行 `node verification/smoke.cjs` 可复跑包括 QPDF 在内的完整样本。[固定演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/PDFTextGuard-v0.0.12.zip) · [ZIP 校验值](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/SHA256SUMS)
+下载并解压 v0.0.13 演示包，用 Node.js 22.3 或更新版本运行 `node verification/demo.cjs`。命令依次展示正常换子集、真实 PDFKit 回归和加密输入，结果为 `0`、`1`、`2`。运行 `node verification/smoke.cjs` 可复跑包括 QPDF 在内的完整样本。[固定演示包](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/PDFTextGuard-v0.0.13.zip) · [ZIP 校验值](https://github.com/WeiR-h/pdftextguard/releases/download/v0.0.13/SHA256SUMS)
 
 | 对照 | 独立参考 | 门禁证据 |
 | --- | --- | --- |

@@ -10,6 +10,8 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 
+from package_release import batch_snapshot, check_release_docs
+
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / ".work"
@@ -53,6 +55,9 @@ def verify(moon, offline):
         raise ValueError(f"Release requires moon {MOON_VERSION}, moonc {MOONC_VERSION}")
     version = re.search(r'^version = "([^"]+)"$', (ROOT / "moon.mod").read_text(), re.M)[1]
     tag = "v" + version
+    check_release_docs(ROOT, version)
+    _, batch_hashes = batch_snapshot(ROOT)
+    run(sys.executable, ROOT / "scripts" / "package_release_test.py")
     build = ["pwsh", "-NoProfile", "-File", ROOT / "scripts/build.ps1", "-Moon", moon, "-Python", sys.executable, "-Test"]
     if offline:
         build.append("-Offline")
@@ -78,6 +83,8 @@ def verify(moon, offline):
             raise ValueError(f"{workload['name']} exceeded the 10% performance limit")
     write_receipt(VERIFICATION / "benchmark-results.json", benchmark)
     cli = receipt(VERIFICATION / "cli-results.json")
+    if batch_snapshot(ROOT)[1] != batch_hashes:
+        raise ValueError("Batch and Action files changed during verification; rerun the release checks.")
     acceptance = {
         "toolVersion": version,
         "artifactSha256": cli["artifactSha256"],
@@ -87,6 +94,7 @@ def verify(moon, offline):
         "moonbitTests": "passed",
         "markdownChecks": "passed",
         "batchChecks": "passed",
+        "batchSourceSha256": batch_hashes,
         "checksumRejection": "passed",
         "independentPdfChecks": "passed",
         "moonbitSourceConsumerCases": receipt(consumer),

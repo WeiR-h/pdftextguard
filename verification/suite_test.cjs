@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
 const { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync,
-  rmSync, writeFileSync } = require('node:fs');
+  rmSync, statSync, writeFileSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { dirname, join, resolve } = require('node:path');
 
@@ -82,6 +82,42 @@ function readOutputs(file) {
   }));
 }
 
+function faultBundle() {
+  const directory = join(work, 'fault-bundle');
+  const verification = join(directory, 'verification');
+  const dist = join(directory, 'dist');
+  mkdirSync(verification, {recursive: true});
+  mkdirSync(dist);
+  copyFileSync(join(repo, 'moon.mod'), join(directory, 'moon.mod'));
+  for (const name of ['suite.cjs', 'gate.cjs']) copyFileSync(join(__dirname, name), join(verification, name));
+  const version = readFileSync(join(directory, 'moon.mod'), 'utf8').match(/^version = "([\d.]+)"$/m)[1];
+  const binary = 'pdftextguard-v' + version + '.cjs';
+  const real = JSON.stringify(join(repo, 'dist', binary));
+  // Two deterministic failures in a scratch bundle. All other calls use the real checker.
+  const wrapper = [
+    "const { appendFileSync, mkdirSync } = require('node:fs');",
+    "const { spawnSync } = require('node:child_process');",
+    "const { basename, join } = require('node:path');",
+    "const args = process.argv.slice(2);",
+    "const candidate = basename(args[2]);",
+    "appendFileSync(join(__dirname, 'checks.log'), candidate + '\\n', 'utf8');",
+    "if (candidate === '错误 export.pdf') {",
+    "  if (process.env.PDFTEXTGUARD_TEST_FAILURE === 'write_report') {",
+    "    const sidecar = args[args.indexOf('--markdown-report') + 1];",
+    "    mkdirSync(sidecar.slice(0, -3) + '.json');",
+    "  } else {",
+    "    console.error('Simulated unexpected checker exit.');",
+    "    process.exit(70);",
+    "  }",
+    "}",
+    `const child = spawnSync(process.execPath, [${real}, ...args], {stdio: 'inherit'});`,
+    "if (child.error) throw child.error;",
+    "process.exitCode = child.status ?? 70;",
+  ].join('\n');
+  writeFileSync(join(dist, binary), wrapper, 'utf8');
+  return {directory, log: join(dist, 'checks.log')};
+}
+
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
     copyFileSync(join(__dirname, 'fixtures', fixture), join(input, name));
@@ -154,7 +190,44 @@ try {
   assert.notEqual(invalid.status, 0);
   assert.match(invalid.stderr, /either baseline and candidate together or pairs-file/);
   assert.ok(!existsSync(invalidOutputs));
-  console.log(`PASS (${process.platform}): batch 0/1/2, every report, Unicode paths, validation and Action outputs.`);
+
+  const emptyOutputs = join(work, 'empty-action-output');
+  const empty = action(emptyOutputs, {PDFTEXTGUARD_PAIRS: manifest('无效 Action 清单', [])});
+  assert.notEqual(empty.status, 0);
+  assert.match(empty.stderr, /nonempty pairs/);
+  assert.ok(!existsSync(emptyOutputs));
+
+  const faults = faultBundle();
+  const interruption = manifest('中途失败', [good, regression, encrypted]);
+  for (const stage of ['check', 'write_report']) {
+    writeFileSync(faults.log, '', 'utf8');
+    const output = join(work, 'partial-' + stage);
+    const interrupted = action(output, {
+      PDFTEXTGUARD_PAIRS: interruption, PDFTEXTGUARD_BUNDLE: faults.directory,
+      PDFTEXTGUARD_TEST_FAILURE: stage,
+    });
+    assert.notEqual(interrupted.status, 0);
+    assert.ok(interrupted.stderr.includes(`during ${stage} for pair 2`), interrupted.stderr);
+    const fields = readOutputs(output);
+    assert.deepEqual(Object.keys(fields), ['report-dir']);
+    const directory = fields['report-dir'];
+    assert.deepEqual(json(join(directory, 'execution-error.json')), {
+      schema_version: 1, kind: 'suite_execution_error', stage, completed_pairs: 1,
+      pair: {index: 2, id: regression.id},
+    });
+    assert.equal(json(join(directory, 'pair-001.json')).compared_glyphs, 300);
+    assert.match(readFileSync(join(directory, 'pair-001.md'), 'utf8'), /SHA-256/);
+    for (const file of ['summary.json', 'summary.md', 'pair-002.json.tmp', 'pair-003.json', 'pair-003.md']) {
+      assert.ok(!existsSync(join(directory, file)), file);
+    }
+    if (stage === 'write_report') {
+      assert.ok(statSync(join(directory, 'pair-002.json')).isDirectory()); // the intentional collision
+    } else {
+      assert.ok(!existsSync(join(directory, 'pair-002.json')));
+    }
+    assert.deepEqual(readFileSync(faults.log, 'utf8').trimEnd().split('\n'), [good.candidate, regression.candidate]);
+  }
+  console.log(`PASS (${process.platform}): batch 0/1/2, Unicode paths, configuration, Action outputs and partial reports.`);
 } finally {
   rmSync(work, {recursive: true, force: true});
 }

@@ -18,11 +18,12 @@ let report, output, markdown;
 const outputs = [];
 if (PDFTEXTGUARD_PAIRS) {
   const { runSuite } = require(join(PDFTEXTGUARD_BUNDLE, 'verification/suite.cjs'));
-  const result = runSuite(PDFTEXTGUARD_PAIRS, join(directory, 'suite'), writeMarkdown);
+  const result = runSuite(PDFTEXTGUARD_PAIRS, join(directory, 'suite'), writeMarkdown, reportDir => {
+    appendFileSync(GITHUB_OUTPUT, `report-dir=${reportDir}\n`, 'utf8');
+  });
   report = result.summary;
   output = result.reportPath;
   markdown = result.markdownPath;
-  outputs.push(`report-dir=${result.directory}`);
 } else {
   const { check } = require(join(PDFTEXTGUARD_BUNDLE, 'verification/gate.cjs'));
   output = join(directory, 'report.json');

@@ -7,6 +7,16 @@
   "moonbitTests": "passed",
   "markdownChecks": "passed",
   "batchChecks": "passed",
+  "batchSourceSha256": {
+    "action.yml": "7b0fc3675e4e4b385c0ac49bb3ee84186e0c6bd2f89a1fc4b317a1d380b87ce8",
+    "verification/action_gate.cjs": "4c581958cb62a94b22e68d5604ce2d8582254419091aabfec15b18feedec2281",
+    "verification/fetch_release.py": "cad8f033fecd459c9a5a1bb06e34639a02c74b0d6c80e02291f643eb4d319495",
+    "verification/gate.cjs": "16ab7b343d2689f98222978ca185c7f6db79154a895e5ee16e6e3eaffc7f4120",
+    "verification/install_action.py": "2cf9e4bf55c45dc971e317f431fd0410b5fb8d73ea49d926dadf485e21f6620e",
+    "verification/install_action_test.py": "417b315e0cb2edbe05a48b6922161cdf1fbafcedafc4267b9392e405026ae157",
+    "verification/suite.cjs": "0f91021b5b235932101447d2bac39e073dec4e7441aab7e20fa177ee6553c52f",
+    "verification/suite_test.cjs": "553839f1b72dab1848050ed9d835169872a2fdf367b603ec9fa852e1d3eb45f4"
+  },
   "checksumRejection": "passed",
   "independentPdfChecks": "passed",
   "moonbitSourceConsumerCases": [
