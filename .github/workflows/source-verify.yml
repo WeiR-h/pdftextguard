@@ -1,0 +1,54 @@
+name: Verify MoonBit source
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to check, or blank for the selected branch
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.13.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned MoonBit toolchain
+        env:
+          MOONBIT_INSTALL_VERSION: '0.10.20+65efd5b93'
+        run: |
+          export MOON_HOME="$RUNNER_TEMP/moonbit"
+          installer="$RUNNER_TEMP/install-moonbit.sh"
+          curl -fsSL --retry 3 -o "$installer" https://cli.moonbitlang.com/install/unix.sh
+          bash "$installer" "$MOONBIT_INSTALL_VERSION"
+          echo "$MOON_HOME/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$MOON_HOME" >> "$GITHUB_ENV"
+      - name: Check MoonBit source and pinned dependencies
+        run: |
+          git rev-parse HEAD
+          moon version --all | tee "$RUNNER_TEMP/moon-version.txt"
+          grep -Fq 'moon 0.1.20261104 ' "$RUNNER_TEMP/moon-version.txt"
+          grep -Fq 'moonc v0.10.20+65efd5b93 ' "$RUNNER_TEMP/moon-version.txt"
+          python scripts/pin-mooncakes.py
+          export MOON_WORK="$PWD/.work/moon.work"
+          moon check --target js --frozen -p WeiR-h/pdftextguard
+      - name: Test MoonBit and build the CLI
+        shell: pwsh
+        run: ./scripts/build.ps1 -Offline -Test -Python python
+      - name: Replay CLI checks from the clean build
+        run: |
+          node verification/smoke.cjs
+          node verification/quote_demo.cjs
