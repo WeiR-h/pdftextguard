@@ -114,7 +114,7 @@ def main(root=ROOT):
     stamp = (release_date.year, release_date.month, release_date.day, 0, 0, 0)
     prefix = f"PDFTextGuard-v{version}"
     members = {
-        "README.md", "CHANGELOG.md", "LICENSE", "LICENSE-APACHE-2.0", "THIRD_PARTY.md",
+        "README.md", "CHANGELOG.md", "LICENSE", "LICENSE-APACHE-2.0", "LICENSE-MOONBIT-CORE-NOTICE", "THIRD_PARTY.md",
         "moon.mod", "moon.pkg", "cmd/pdftextguard/moon.pkg", "action.yml", cli, "dist/SHA256SUMS",
         "verification/requirements.txt", "verification/cli-results.json",
         "verification/reference-results.json", "verification/pdfkit/package.json",

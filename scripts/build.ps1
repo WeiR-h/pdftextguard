@@ -52,7 +52,7 @@ try {
     $filename = "pdftextguard-$version.cjs"
     $entry = Join-Path $dist $filename
     [IO.File]::WriteAllBytes($entry, [IO.File]::ReadAllBytes($artifact))
-    foreach ($document in @('LICENSE', 'THIRD_PARTY.md', 'LICENSE-APACHE-2.0')) {
+    foreach ($document in @('LICENSE', 'THIRD_PARTY.md', 'LICENSE-APACHE-2.0', 'LICENSE-MOONBIT-CORE-NOTICE')) {
         [IO.File]::WriteAllBytes((Join-Path $dist $document), [IO.File]::ReadAllBytes((Join-Path $project $document)))
     }
     $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath $entry).Hash.ToLowerInvariant()

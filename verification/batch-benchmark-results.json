@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
   "metric": "elapsed CLI time for 20 sequential quote pairs including Node startup, JSON and Markdown",
-  "toolVersion": "0.1.0",
-  "artifactSha256": "d133e0d7c26be384a69c2180d62b53fc22fd6fddad4cc17f86a7fc200486647c",
-  "platform": "win32",
+  "toolVersion": "0.1.1",
+  "artifactSha256": "542703f5f0586c5ccfb374ce8d9528f4dde14d6b71c6bbd2c517498b619e82ff",
+  "platform": "linux",
   "node": "v24.13.0",
-  "cpu": "AMD Ryzen 7 5800H with Radeon Graphics",
+  "cpu": "AMD EPYC 7763 64-Core Processor",
   "pairs": 20,
   "counts": {
     "pass": 7,
     "regression": 7,
     "inconclusive": 6
   },
-  "elapsed_ms": 4034.92,
+  "elapsed_ms": 2865.8,
   "inputSha256": {
     "verification/fixtures/quote-classic.pdf": "383f7bb5ca14bae9975627765c26aee4e70d9f7fb21970b26b60bfbdbf01a941",
     "verification/fixtures/quote-compressed.pdf": "582d459988031620d5c1390019fc2a8e4e3369275eab958991fb2f2ce6fd1f1c",
