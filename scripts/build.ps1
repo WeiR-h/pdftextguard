@@ -12,15 +12,11 @@ $originalMoonHome = $env:MOON_HOME
 $originalMoonWork = $env:MOON_WORK
 
 if (!$Moon) {
-    $localMoon = Join-Path (Split-Path -Parent $project) '.moonmmdb-tools/moon-current/bin/moon.exe'
     $command = Get-Command moon -ErrorAction SilentlyContinue
-    if ($command) {
-        $Moon = $command.Source
-    } elseif (Test-Path -LiteralPath $localMoon) {
-        $Moon = $localMoon
-    } else {
+    if (!$command) {
         throw 'MoonBit toolchain missing. Put moon on PATH or pass -Moon with its absolute path.'
     }
+    $Moon = $command.Source
 }
 $Moon = (Get-Command $Moon -ErrorAction Stop).Source
 $toolRoot = Split-Path -Parent (Split-Path -Parent $Moon)

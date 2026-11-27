@@ -12,7 +12,7 @@ jobs:
           persist-credentials: false
       - name: Compare PDF exports from the manifest
         id: pdf
-        uses: WeiR-h/pdftextguard@v0.1.0
+        uses: WeiR-h/pdftextguard@v0.1.1
         with:
           pairs-file: examples/quote-pairs.json
           markdown-report: 'true'

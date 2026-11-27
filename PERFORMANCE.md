@@ -23,7 +23,7 @@ node .\verification\benchmark.cjs v0.0.1 v0.0.2 v0.0.3 v0.0.4 v0.0.5
 
 比较结果输出到 `.work/benchmark/comparison.json`。
 
-v0.1.0 另测一次 20 组报价单批次。它循环运行正常压缩导出、受控错映射和加密对照，保存逐组 JSON 与 Markdown。计时覆盖批量进程启动、比较和报告写入。[本机批量测量](verification/batch-benchmark-results.json)
+本版另测一次 20 组报价单批次。它循环运行正常压缩导出、受控错映射和加密对照，保存逐组 JSON 与 Markdown。计时覆盖批量进程启动、比较和报告写入。[本机批量测量](verification/batch-benchmark-results.json)
 
 ```sh
 node verification/batch_benchmark.cjs batch-benchmark-results.json

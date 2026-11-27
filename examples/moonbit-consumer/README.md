@@ -2,7 +2,7 @@
 
 这是独立的 MoonBit 项目。它通过 Mooncakes 安装清单中固定的模块版本。用 JavaScript 后端和 Node.js 运行。示例读取两份本地 PDF，直接调用 `@guard.check`，输出同一份结构化报告。
 
-从 PDFTextGuard 源码或发行 ZIP 的顶层进入示例目录。以下命令可以在 Windows PowerShell 或 Bash 运行。
+使用 `moonc 1.0.0-rc1` 或更新版本和 Node.js 22.3 或更新版本。从 PDFTextGuard 源码或发行 ZIP 的顶层进入示例目录，以下命令可在 Windows PowerShell 或 Bash 运行。[MoonBit 安装指南](https://www.moonbitlang.com/download/)
 
 ```sh
 cd examples/moonbit-consumer

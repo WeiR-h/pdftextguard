@@ -16,8 +16,8 @@ from package_release import batch_snapshot, check_release_docs
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / ".work"
 VERIFICATION = ROOT / "verification"
-MOON_VERSION = "0.1.20261104"
-MOONC_VERSION = "v0.10.20+65efd5b93"
+MOON_VERSION = "0.1.20261126"
+MOONC_VERSION = "v1.0.0-rc1+3c0520448"
 BASELINE_TAG = "v0.0.11"
 BASELINE_SHA256 = "12befbf8d0e03661d29c542553acbc48c0b1b82fbb8c3b98c4bcfb3b3774fd55"
 
@@ -49,8 +49,8 @@ def install_baseline(offline):
 
 def verify(moon, offline):
     tools = subprocess.check_output([moon, "version", "--all"], encoding="utf-8")
-    if not re.search(rf"^moon {re.escape(MOON_VERSION)}\b", tools, re.M) or not re.search(
-        rf"^moonc {re.escape(MOONC_VERSION)}\b", tools, re.M
+    if not re.search(rf"^moon {re.escape(MOON_VERSION)}(?=\s|$)", tools, re.M) or not re.search(
+        rf"^moonc {re.escape(MOONC_VERSION)}(?=\s|$)", tools, re.M
     ):
         raise ValueError(f"Release requires moon {MOON_VERSION}, moonc {MOONC_VERSION}")
     version = re.search(r'^version = "([^"]+)"$', (ROOT / "moon.mod").read_text(), re.M)[1]
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     parser.add_argument("--moon", type=Path, help="path to the pinned moon executable")
     parser.add_argument("--offline", action="store_true", help="use locally cached archives and baseline only")
     args = parser.parse_args()
-    candidate = args.moon or shutil.which("moon") or (
-        ROOT.parent / ".moonmmdb-tools/moon-current/bin/moon.exe"
-    )
+    candidate = args.moon or shutil.which("moon")
+    if candidate is None:
+        parser.error("put moon on PATH or pass --moon with its executable path")
     verify(Path(candidate).resolve(), args.offline)
