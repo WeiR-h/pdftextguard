@@ -13,6 +13,10 @@ on:
         description: Verify and package a release candidate
         type: boolean
         default: false
+      registry_check:
+        description: Compare a published tag with a fresh Mooncakes installation
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -53,6 +57,8 @@ jobs:
       - name: Test MoonBit and build the CLI
         shell: pwsh
         run: ./scripts/build.ps1 -Offline -Test -Python python
+      - name: Install PDF verification tools
+        run: python -m pip install -r verification/requirements.txt
       - name: Replay CLI checks from the clean build
         run: |
           node verification/smoke.cjs
@@ -64,9 +70,7 @@ jobs:
         run: python verification/moonbit_consumer_test.py --moon "$(command -v moon)"
       - name: Build and verify the release candidate
         if: inputs.release_check
-        run: |
-          python -m pip install -r verification/requirements.txt
-          python scripts/verify_release.py
+        run: python scripts/verify_release.py
       - uses: actions/upload-artifact@v4
         if: inputs.release_check
         with:
@@ -75,3 +79,11 @@ jobs:
             dist/*.zip
             dist/*.zip.sha256
           if-no-files-found: error
+      - name: Compare the public CLI with a fresh Mooncakes installation
+        if: inputs.registry_check
+        env:
+          PDFTEXTGUARD_TAG: ${{ inputs.tag }}
+        run: |
+          python verification/fetch_release.py "$PDFTEXTGUARD_TAG" "$RUNNER_TEMP/pdftextguard"
+          cd "$RUNNER_TEMP/pdftextguard/PDFTextGuard-$PDFTEXTGUARD_TAG"
+          python verification/moonbit_consumer_test.py --moon "$(command -v moon)" --registry
