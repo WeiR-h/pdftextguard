@@ -44,7 +44,8 @@ jobs:
           grep -Fq 'moonc v0.10.20+65efd5b93 ' "$RUNNER_TEMP/moon-version.txt"
           python scripts/pin-mooncakes.py
           export MOON_WORK="$PWD/.work/moon.work"
-          moon check --target js --frozen -p WeiR-h/pdftextguard
+          moon check --target js --frozen -p "$PWD"
+          moon check --target js --frozen -p "$PWD/cmd/pdftextguard"
       - name: Test MoonBit and build the CLI
         shell: pwsh
         run: ./scripts/build.ps1 -Offline -Test -Python python
